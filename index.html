@@ -317,7 +317,7 @@ details.box summary{cursor:pointer;font-weight:600;font-size:13px}
   <aside class="side">
     <div class="brand"><b>Cria<span>Edu</span></b><small>Criação, adaptação e banco de atividades</small></div>
     <nav class="nav" id="nav"></nav>
-    <div class="foot" id="nuvemBox">Protótipo v0.9 · dados salvos neste navegador</div>
+    <div class="foot" id="nuvemBox">Protótipo v0.10 · dados salvos neste navegador</div>
   </aside>
   <main id="main"></main>
 </div>
@@ -396,6 +396,19 @@ function criteriosPadrao(){
     {id:'c6',titulo:'Entrega no prazo',texto:'A atividade deverá ser entregue até a data indicada no cabeçalho, pelo Classroom ou por e-mail, para fins de correção e atribuição da nota.'}
   ];
 }
+/* critérios prontos para acrescentar com um clique (o professor pode editar depois) */
+const CRITERIOS_SUGERIDOS = [
+  {titulo:'Uso de calculadora', texto:'É permitido o uso de calculadora simples. Não é permitido usar o celular como calculadora.'},
+  {titulo:'Prova com consulta', texto:'É permitida a consulta ao material indicado pelo professor, de forma individual e sem troca de material entre colegas.'},
+  {titulo:'Celulares e eletrônicos', texto:'Celulares e demais aparelhos eletrônicos devem permanecer desligados e guardados durante toda a avaliação.'},
+  {titulo:'Identificação', texto:'Preencha nome completo, número e turma no cabeçalho. Avaliações sem identificação não serão corrigidas até que o aluno seja identificado.'},
+  {titulo:'Apresentação dos cálculos', texto:'Nas questões de cálculo, apresente todo o desenvolvimento. Respostas sem os cálculos não recebem a pontuação total.'},
+  {titulo:'Legibilidade e organização', texto:'Escreva com letra legível e responda nos espaços indicados. Respostas ilegíveis não serão consideradas.'},
+  {titulo:'Autoria', texto:'A atividade deve ser feita pelo próprio aluno. Respostas copiadas de colegas ou da internet resultarão em nota zero na atividade.'},
+  {titulo:'Trabalho em grupo', texto:'Todos os integrantes devem participar da elaboração e da apresentação. A nota pode ser individualizada conforme a participação de cada um.'},
+  {titulo:'Entrega digital', texto:'Envie a atividade em arquivo único (PDF ou foto legível), nomeado com seu nome completo e turma, na atividade correspondente do Classroom.'},
+  {titulo:'Atraso na entrega', texto:'Atividades entregues após o prazo serão avaliadas conforme as orientações da escola, podendo ter a nota reduzida.'}
+];
 const TERMO_PADRAO = {titulo:'TERMO DE DESISTÊNCIA DO DIREITO DE FAZER ESSA AVALIAÇÃO', texto:'Declaro, de forma consciente e voluntária, que estou ciente do meu direito de realizar esta avaliação, porém opto por não fazê-la neste momento. Assumo total responsabilidade por essa decisão, ciente de que não terei outra oportunidade para sua realização e de que a nota correspondente será atribuída como zero, conforme as orientações institucionais.'};
 
 function cabecalhosPadrao(){
@@ -1550,7 +1563,18 @@ function cabOpcoes(o, alvo){
     const vis = itens.filter(([k])=> o.estilo!=='tabela' || !['faixa','titulo','curso','anoNaData','criterios','termo'].includes(k));
     if(vis.length) h += `<div class="ckgroup"><span class="cklab">${grupo}</span><div class="row">${vis.map(([k,n])=>ck('cabcampo',k,n,o.campos[k])).join('')}</div></div>`;
   });
-  if(o.estilo!=='tabela' && o.campos.criterios) h += `<div class="ckgroup"><span class="cklab">Critérios incluídos (na ordem do banco de critérios)</span><div class="crits">${S.criteriosProva.map(c=>ck('cabcrit',c.id,`<span>${c.titulo?`<b>${esc(c.titulo)}</b> – `:''}${esc(c.texto.replace(/\*\*/g,'')).slice(0,90)}…</span>`,o.criterios.includes(c.id))).join('')}</div></div>`;
+  if(o.estilo!=='tabela' && o.campos.criterios){
+    h += `<div class="ckgroup"><span class="cklab">Critérios incluídos (na ordem do banco de critérios)</span><div class="crits">${S.criteriosProva.map(c=>ck('cabcrit',c.id,`<span>${c.titulo?`<b>${esc(c.titulo)}</b> – `:''}${esc(c.texto.replace(/\*\*/g,'')).slice(0,90)}${c.texto.length>90?'…':''}</span>`,o.criterios.includes(c.id))).join('')}</div></div>`;
+    const titulos = new Set(S.criteriosProva.map(c=>c.titulo.trim().toLowerCase()));
+    const sug = CRITERIOS_SUGERIDOS.map((c,i)=>({...c,i})).filter(c=>!titulos.has(c.titulo.toLowerCase()));
+    if(sug.length) h += `<div class="ckgroup"><span class="cklab">Sugestões de critérios (clique para acrescentar e marcar)</span><div class="row">${sug.map(c=>`<button class="btn sm" data-act="crit-sug" data-dest="${alvo}" data-k="${c.i}" title="${esc(c.texto)}">+ ${esc(c.titulo)}</button>`).join('')}</div></div>`;
+    h += `<details class="box"><summary>+ Criar um critério novo</summary><div class="fields" style="margin-top:8px">
+        <label class="f wide">Título (sai em negrito)<input type="text" id="${pid}-nc-t" placeholder="Ex.: Uso de régua e calculadora"></label>
+        <label class="f wide">Texto do critério<textarea id="${pid}-nc-x" rows="2" placeholder="Ex.: É permitido o uso de régua e calculadora simples. Use **texto** para negrito."></textarea></label></div>
+        <div class="row" style="margin-top:8px"><label class="ck"><input type="checkbox" id="${pid}-nc-d"> Parágrafo destacado (negrito e itálico, sem título)</label>
+        <button class="btn sm pri" data-act="crit-novo" data-dest="${alvo}" data-pid="${pid}">Adicionar e marcar</button></div>
+        <p class="note">O critério entra no banco de critérios e fica disponível para todos os modelos e atividades.${alvo==='act'?' Nesta atividade ele já sai marcado; use "Gravar no modelo" para levá-lo ao modelo.':''}</p></details>`;
+  }
   return h;
 }
 
@@ -1899,6 +1923,23 @@ document.addEventListener('click', e=>{
     case 'cab-del': armar(b,()=>{ S.cabecalhos=S.cabecalhos.filter(x=>x.id!==id); modeloCabSel=''; save(); render(); }); break;
     case 'cab-gravar': { const m=S.cabecalhos.find(x=>x.id===cur.cab.modeloId); if(!m) break; Object.assign(m,{rotulo:cur.cab.rotulo,notaTexto:cur.cab.notaTexto,critTitulo:cur.cab.critTitulo,campos:clone(cur.cab.campos),criterios:[...cur.cab.criterios]}); save(); toast(`Escolhas gravadas no modelo "${m.nome}".`); break; }
     case 'cab-restaurar': { const m=S.cabecalhos.find(x=>x.id===cur.cab.modeloId)||modeloCabPara(cur.tipo); cur.cab=cabDoModelo(m,cur.cab); rerenderEditor(); toast('Cabeçalho restaurado conforme o modelo.'); break; }
+    case 'crit-novo': case 'crit-sug': {
+      let c;
+      if(act==='crit-sug'){ const g=CRITERIOS_SUGERIDOS[+b.dataset.k]; c={id:'c'+uid(), titulo:g.titulo, texto:g.texto}; }
+      else {
+        const p=b.dataset.pid, t=(document.getElementById(p+'-nc-t')?.value||'').trim(), x=(document.getElementById(p+'-nc-x')?.value||'').trim(), dz=!!document.getElementById(p+'-nc-d')?.checked;
+        if(!x){ toast('Escreva o texto do critério.'); break; }
+        if(!t && !dz){ toast('Dê um título ao critério ou marque "Parágrafo destacado".'); break; }
+        c={id:'c'+uid(), titulo:dz?'':t, texto:x, destaque:dz||undefined};
+      }
+      S.criteriosProva.push(c);
+      const dest = b.dataset.dest, o = dest==='act' ? cur.cab : S.cabecalhos.find(m=>m.id===dest);
+      if(o){ const sel=new Set([...o.criterios, c.id]); o.criterios = S.criteriosProva.map(x=>x.id).filter(id=>sel.has(id)); }
+      save();
+      if(dest==='act') rerenderEditor(); else { const y=window.scrollY; render(); window.scrollTo(0,y); }
+      toast(`Critério "${c.titulo||'destacado'}" adicionado e marcado.`);
+      break;
+    }
     case 'crit-add': S.criteriosProva.push({id:'c'+uid(),titulo:'Novo critério',texto:''}); save(); render(); break;
     case 'crit-del': armar(b,()=>{ S.criteriosProva=S.criteriosProva.filter(x=>x.id!==id); S.cabecalhos.forEach(m=>m.criterios=m.criterios.filter(x=>x!==id)); save(); render(); }); break;
     case 'crit-up': { const i=S.criteriosProva.findIndex(x=>x.id===id); if(i>0){ [S.criteriosProva[i-1],S.criteriosProva[i]]=[S.criteriosProva[i],S.criteriosProva[i-1]]; S.cabecalhos.forEach(m=>m.criterios=S.criteriosProva.map(c=>c.id).filter(x=>m.criterios.includes(x))); save(); render(); } break; }
@@ -2464,7 +2505,7 @@ function nuvemStatus(estado, erro=''){
   const el = document.getElementById('nuvemBox'); if(el) el.innerHTML = nuvemBoxHTML();
 }
 function nuvemBoxHTML(){
-  if(!nuvem.ativo) return 'Protótipo v0.9 · dados salvos neste navegador';
+  if(!nuvem.ativo) return 'Protótipo v0.10 · dados salvos neste navegador';
   if(!nuvem.user) return `<button class="btn sm pri" data-act="nuvem-entrar">Entrar com Google</button><span>Entre para salvar na nuvem e usar em qualquer computador.</span>`;
   const st = {ok:`Salvo na nuvem às ${nuvem.quando}`, pendente:'Salvando…', carregando:'Carregando da nuvem…', erro:`Erro ao salvar: ${esc(nuvem.erro)}`}[nuvem.estado] || '';
   return `<span class="nv ${nuvem.estado}">${st}</span><span>${esc(nuvem.user.email||'')}</span><button class="btn sm ghost" data-act="nuvem-sair">Sair</button>`;
