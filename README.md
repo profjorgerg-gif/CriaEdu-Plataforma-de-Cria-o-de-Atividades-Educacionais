@@ -2,8 +2,9 @@
 
 Protótipo para criar, organizar e adaptar atividades: exercícios, provas, trabalhos, estudos de caso, Recuperação Paralela (RP), Regime de Atendimento Domiciliar (RAD) e atividades adaptadas para alunos PCD.
 
-## O que já funciona (v0.8)
+## O que já funciona (v0.9)
 
+- **Página de entrada**: no padrão das plataformas do CEDUP (verde e dourado), com acesso exclusivo para professores pela conta Google e a opção de usar sem entrar (dados só no navegador).
 - **Nuvem (Firebase)**: login com Google e salvamento automático no Firestore. Cada professor tem um espaço próprio e só ele acessa (regras em `firestore.rules`). Na primeira entrada, os dados que já estão no navegador são enviados para a nuvem. Sem configuração, a plataforma continua funcionando só no navegador.
 - **Correção com o assistente que você já usa (Claude, ChatGPT ou Gemini)**: a plataforma monta as instruções com o gabarito de cada código e o formato da resposta; você copia, cola no chat e anexa as entregas (há um .zip com as fotos renomeadas pelo código do aluno, por lote). O assistente devolve a correção em um arquivo .zip (um .json por aluno, nomeado pelo código, e um consolidado); você baixa e envia o .zip na plataforma, que associa cada resultado ao aluno. Se o assistente não gerar arquivos, dá para colar a resposta em texto: notas, respostas por questão e feedbacks são preenchidos para revisão. Não precisa de chave de API.
 - **Uma atividade por aluno**: cada aluno escolhido recebe o próprio arquivo, com código individual (ex.: `PRV-2026-0006-03`) e nome do arquivo no padrão `código_NOME_DO_ALUNO`. Com vários alunos, os arquivos Word ou PDF vêm juntos em um .zip; também é possível gerar um arquivo único com todos.
