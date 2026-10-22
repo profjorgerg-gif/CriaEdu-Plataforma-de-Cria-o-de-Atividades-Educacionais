@@ -1,20 +1,15 @@
 /*
-  CriaEdu — configuração do Firebase
-
-  Como preencher:
-  1. No console do Firebase, abra Configurações do projeto (engrenagem) > Geral > Seus apps.
-  2. No app da Web "CriaEdu", copie os valores do firebaseConfig.
-  3. Cole cada valor entre as aspas abaixo e salve (Commit changes).
+  CriaEdu — configuração do Firebase (projeto criaedu-pcae)
 
   Estes valores identificam o projeto e podem ficar no GitHub: quem protege os dados
   são as regras do Firestore (arquivo firestore.rules) e o login com Google.
-  Enquanto apiKey estiver vazio, a plataforma funciona só com os dados do navegador.
+  Para consultar de novo: console do Firebase > Configurações do projeto > Seus apps.
 */
 window.FIREBASE_CONFIG = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyDEngL2YR8Yp64d3wmamNDJ5yL7SaqbfW8",
+  authDomain: "criaedu-pcae.firebaseapp.com",
+  projectId: "criaedu-pcae",
+  storageBucket: "criaedu-pcae.firebasestorage.app",
+  messagingSenderId: "199044337738",
+  appId: "1:199044337738:web:76193ad4b982c556f7d6b3"
 };
