@@ -207,6 +207,7 @@ details.box summary{cursor:pointer;font-weight:600;font-size:13px}
 .doc .cdp-tit{width:58%!important;margin:2px auto 10px;border-collapse:collapse}
 .doc .cdp-tit td{border:1px solid #222;text-align:center;font-weight:700;font-size:10pt;padding:6px 8px}
 .doc .cdp-al{margin:4px 0 8px;white-space:nowrap;overflow:hidden}
+.doc .cdp-ass{margin:2px 0 10px}
 .doc .cdp-dados{width:100%;border-collapse:collapse}
 .doc .cdp-dados td{vertical-align:top;padding:0}
 .doc .cdp-l p{margin:0 0 8px}
@@ -324,7 +325,7 @@ details.box summary{cursor:pointer;font-weight:600;font-size:13px}
   <aside class="side">
     <div class="brand"><b>Cria<span>Edu</span></b><small>Criação, adaptação e banco de atividades</small></div>
     <nav class="nav" id="nav"></nav>
-    <div class="foot" id="nuvemBox">Protótipo v0.11 · dados salvos neste navegador</div>
+    <div class="foot" id="nuvemBox">Protótipo v0.12 · dados salvos neste navegador</div>
   </aside>
   <main id="main"></main>
 </div>
@@ -378,7 +379,7 @@ const FAIXA_PADRAO = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/4QBaRXh
 /* Itens que o professor pode incluir ou não no cabeçalho */
 const CAMPOS_CAB = [
   ['Identificação', [['faixa','Faixa com brasão e logotipo'],['titulo','Caixa de título da avaliação'],['tituloAtividade','Título e dados da atividade']]],
-  ['Dados do aluno e da turma', [['aluno','Aluno'],['numero','Nº de chamada'],['matricula','Matrícula'],['disciplina','Disciplina'],['professor','Professor(a)'],['curso','Curso'],['turma','Turma'],['data','Data'],['prazo','Prazo de entrega'],['codigo','Código da atividade']]],
+  ['Dados do aluno e da turma', [['aluno','Aluno'],['numero','Nº de chamada'],['matricula','Matrícula'],['assinatura','Assinatura do aluno'],['disciplina','Disciplina'],['professor','Professor(a)'],['curso','Curso'],['turma','Turma'],['data','Data'],['prazo','Prazo de entrega'],['codigo','Código da atividade']]],
   ['Preenchimento', [['turmaAuto','Turma preenchida'],['dataAuto','Data preenchida'],['anoNaData','Ano já impresso na data em branco']]],
   ['Blocos', [['nota','Quadro de nota'],['criterios','Critérios para a prova'],['termo','Termo de desistência']]]
 ];
@@ -419,7 +420,7 @@ const CRITERIOS_SUGERIDOS = [
 const TERMO_PADRAO = {titulo:'TERMO DE DESISTÊNCIA DO DIREITO DE FAZER ESSA AVALIAÇÃO', texto:'Declaro, de forma consciente e voluntária, que estou ciente do meu direito de realizar esta avaliação, porém opto por não fazê-la neste momento. Assumo total responsabilidade por essa decisão, ciente de que não terei outra oportunidade para sua realização e de que a nota correspondente será atribuída como zero, conforme as orientações institucionais.'};
 
 function cabecalhosPadrao(){
-  const base = {faixa:true,titulo:true,tituloAtividade:false,aluno:true,numero:false,matricula:true,disciplina:true,professor:true,curso:true,turma:true,data:true,prazo:false,codigo:true,turmaAuto:true,dataAuto:false,anoNaData:true,nota:true,criterios:true,termo:true};
+  const base = {faixa:true,titulo:true,tituloAtividade:false,aluno:true,numero:false,matricula:true,assinatura:true,disciplina:true,professor:true,curso:true,turma:true,data:true,prazo:false,codigo:true,turmaAuto:true,dataAuto:false,anoNaData:true,nota:true,criterios:true,termo:true};
   const m = (id,nome,rotulo,notaTexto,criterios,tipos,campos={},extra={}) => Object.assign({id,nome,estilo:'cedup',rotulo,notaTexto,critTitulo:'Critérios para a Prova:',criterios,tipos,campos:Object.assign({},base,campos)},extra);
   return [
     m('h-prova-gab','Prova – nota na folha do gabarito','PROVA','A nota da prova será registrada diretamente na folha do gabarito.',['c1','c2','c3','c4'],['prova']),
@@ -597,6 +598,7 @@ function migrar(o){
   o.escola.campos = Object.assign({aluno:true,numero:true,matricula:true,turma:true,data:true,prazo:true,codigo:true,nota:true}, o.escola.campos);
   o.turmas.forEach(t=>{ t.alunos = t.alunos || []; t.codigo = t.codigo || ''; });
   if(!o.cabecalhos) o.cabecalhos = cabecalhosPadrao();
+  o.cabecalhos.forEach(m=>{ if(m.campos.assinatura===undefined) m.campos.assinatura = true; });
   if(!o.criteriosProva) o.criteriosProva = criteriosPadrao();
   if(!o.termo) o.termo = clone(TERMO_PADRAO);
   if(o.escola.faixa === undefined) o.escola.faixa = '';
@@ -606,6 +608,7 @@ function migrar(o){
     if(!a.modalidade) a.modalidade = modalidadePara(a);
     if(!a.codigo) a.codigo = gerarCodigo(a.tipo, o);
     if(!a.cab){ a.cab = cabDoModelo(modeloCabPara(a.tipo, o), a._cab||{}); delete a._cab; }
+    if(a.cab.campos.assinatura===undefined) a.cab.campos.assinatura = true;
   });
   return o;
 }
@@ -1077,6 +1080,9 @@ function cabCedup(a, aluno){
     if(k.matricula) p += `${k.aluno?' &nbsp;&nbsp; ':''}${L('MATRÍCULA', aluno?esc(aluno.matricula):linha(14))}`;
     h += `<p class="cdp-al">${p}</p>`;
   }
+  if(k.assinatura){
+    h += `<p class="cdp-al cdp-ass"><b>ASSINATURA DO ALUNO:</b> ${linha(62)}</p>`;
+  }
   // bloco de dados + quadro de nota
   const ln = [];
   const l1 = [k.disciplina?L('DISCIPLINA',esc((d?.nome||'').toUpperCase())):'', k.professor?L('PROFESSOR(A)',esc((E.professor||'').toUpperCase())):''].filter(Boolean).join(' &nbsp; ');
@@ -1118,6 +1124,7 @@ function cabTabela(a, aluno){
     cells.push(cel('Aluno(a)', nome, c.matricula?2:3));
   }
   if(c.matricula) cells.push(cel('Matrícula', aluno?esc(aluno.matricula):''));
+  if(c.assinatura) cells.push(cel('Assinatura do aluno', '&nbsp;', 3));
   if(c.data) cells.push(cel(a.tipo==='rad'?'Data de envio':'Data', c.dataAuto?dataBR(a.data):'____/____/______'));
   if(c.prazo) cells.push(cel('Prazo de entrega', dataBR(a.prazoEntrega)||(a.prazo?esc(a.prazo):'____/____/______')));
   if(c.nota) cells.push(cel(esc(a.cab.notaTexto||'Nota'),'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; / 10,0'));
@@ -2537,7 +2544,7 @@ function nuvemStatus(estado, erro=''){
   const el = document.getElementById('nuvemBox'); if(el) el.innerHTML = nuvemBoxHTML();
 }
 function nuvemBoxHTML(){
-  if(!nuvem.ativo) return 'Protótipo v0.11 · dados salvos neste navegador';
+  if(!nuvem.ativo) return 'Protótipo v0.12 · dados salvos neste navegador';
   if(!nuvem.user) return `<button class="btn sm pri" data-act="nuvem-entrar">Entrar com Google</button><span>Entre para salvar na nuvem e usar em qualquer computador.</span>`;
   const st = {ok:`Salvo na nuvem às ${nuvem.quando}`, pendente:'Salvando…', carregando:'Carregando da nuvem…', erro:`Erro ao salvar: ${esc(nuvem.erro)}`}[nuvem.estado] || '';
   return `<span class="nv ${nuvem.estado}">${st}</span><span>${esc(nuvem.user.email||'')}</span><button class="btn sm ghost" data-act="nuvem-sair">Sair</button>`;
