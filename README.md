@@ -2,8 +2,13 @@
 
 Protótipo para criar, organizar e adaptar atividades: exercícios, provas, trabalhos, estudos de caso, Recuperação Paralela (RP), Regime de Atendimento Domiciliar (RAD) e atividades adaptadas para alunos PCD.
 
-## O que já funciona (v0.9)
+## O que já funciona (v0.13)
 
+- **Documentos no padrão ABNT (NBR 14724)**: uma única fonte (Arial ou Times New Roman, escolhida em Modelos e diretrizes), texto em 12 pt com espaçamento 1,5 e justificado, cabeçalho, tabelas e notas em 10–11 pt, margens de 3 cm (superior e esquerda) e 2 cm (inferior e direita), páginas numeradas no canto superior direito.
+- **Impressão e PDF corrigidos**: quebras de página respeitadas (folhas de cálculo sempre em página própria), sem páginas em branco no final e sem linhas cortadas no PDF por aluno.
+- **Assinatura do aluno** no cabeçalho (campo que pode ser marcado ou desmarcado).
+- **Folhas de cálculo** nas questões de cálculo: cada folha em página própria, com o cabeçalho da 1ª página, o título FOLHA DE CÁLCULO e o restante da página em branco.
+- **Novos critérios** criados direto na lista de escolha, com 10 sugestões prontas.
 - **Página de entrada**: no padrão das plataformas do CEDUP (verde e dourado), com acesso exclusivo para professores pela conta Google e a opção de usar sem entrar (dados só no navegador).
 - **Nuvem (Firebase)**: login com Google e salvamento automático no Firestore. Cada professor tem um espaço próprio e só ele acessa (regras em `firestore.rules`). Na primeira entrada, os dados que já estão no navegador são enviados para a nuvem. Sem configuração, a plataforma continua funcionando só no navegador.
 - **Correção com o assistente que você já usa (Claude, ChatGPT ou Gemini)**: a plataforma monta as instruções com o gabarito de cada código e o formato da resposta; você copia, cola no chat e anexa as entregas (há um .zip com as fotos renomeadas pelo código do aluno, por lote). O assistente devolve a correção em um arquivo .zip (um .json por aluno, nomeado pelo código, e um consolidado); você baixa e envia o .zip na plataforma, que associa cada resultado ao aluno. Se o assistente não gerar arquivos, dá para colar a resposta em texto: notas, respostas por questão e feedbacks são preenchidos para revisão. Não precisa de chave de API.
@@ -87,6 +92,22 @@ Protótipo para criar, organizar e adaptar atividades: exercícios, provas, trab
 - As fotos das entregas de correção não vão para a nuvem (ficam só na sessão); notas, correções e feedbacks vão.
 - O Firebase Storage (para guardar fotos) e as Cloud Functions (para a IA sem chave no navegador) exigem o plano Blaze, com cobrança por uso. Ficam para a próxima etapa, se forem necessários.
 - A leitura de PDF usa a biblioteca pdf.js (cdnjs), por isso a importação de turmas precisa de internet.
+
+## Histórico de versões
+
+Cada atualização é entregue em um .zip com data e hora no nome (ex.: `criaedu_2026-10-23_08h40.zip`). No GitHub, envie o conteúdo do zip por **Add file › Upload files** e use a mensagem de commit `Atualização AAAA-MM-DD HHhMM: descrição`.
+
+| Versão | Data | Principais mudanças |
+| --- | --- | --- |
+| v0.14 | 23/10/2026 | Folha de cálculo com a página em branco (sem pauta e sem "Resposta final") |
+| v0.13 | 23/10/2026 | Padrão ABNT nos documentos; correção da impressão e do PDF |
+| v0.12 | 23/10/2026 | Assinatura do aluno no cabeçalho |
+| v0.11 | 23/10/2026 | Folhas de cálculo com cabeçalho; correção do PDF por aluno |
+| v0.10 | 22/10/2026 | Criar critérios na lista de escolha e sugestões |
+| v0.9 | 22/10/2026 | Página de entrada (só professores) |
+| v0.8 | 22/10/2026 | Nuvem: login Google e Firestore |
+| v0.5–v0.7 | 22/10/2026 | Gerador de questões, versões por aluno, correção com IA |
+| v0.1–v0.4 | 22/10/2026 | Protótipo, turmas por PDF, cabeçalho da escola, modalidades |
 
 ## Próximas etapas (rumo à implantação)
 

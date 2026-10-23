@@ -110,7 +110,7 @@ input[type=number]{font-family:var(--f-mono)}
 .seg button{border:0;background:var(--surface);padding:6px 12px;cursor:pointer;font-weight:500;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 .sheetwrap{overflow:auto;border-radius:var(--r);border:1px solid var(--line);background:var(--surface-2);padding:16px;min-height:300px}
-.sheet{background:var(--paper);color:var(--paper-ink);max-width:720px;margin:0 auto;padding:36px 40px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.sheet{background:#fff;color:#000;max-width:720px;margin:0 auto;padding:68px 46px 46px 68px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
 
 .alunos{display:flex;flex-direction:column;max-height:280px;overflow:auto;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
 .al{display:grid;grid-template-columns:auto 28px 1fr auto;gap:8px;align-items:center;padding:6px 10px;border-top:1px solid var(--line);cursor:pointer;font-size:13px}
@@ -199,66 +199,8 @@ details.box summary{cursor:pointer;font-weight:600;font-size:13px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:6px;font-size:13px;z-index:50;max-width:calc(100% - 32px)}
 
 /* Documento (folha impressa) */
-.doc{font-family:var(--f-doc);font-size:11.5pt;line-height:1.45;color:#141414}
-.doc table{border-collapse:collapse;width:100%}
-.doc .cab td{border:1px solid #555;padding:4px 7px;font-size:10pt;vertical-align:middle}
-.doc .cdp{font-family:Arial,Helvetica,sans-serif;font-size:10.5pt;line-height:1.35;margin-bottom:10px}
-.doc .cdp .faixa{display:block;width:100%;max-width:100%;height:auto}
-.doc .cdp-tit{width:58%!important;margin:2px auto 10px;border-collapse:collapse}
-.doc .cdp-tit td{border:1px solid #222;text-align:center;font-weight:700;font-size:10pt;padding:6px 8px}
-.doc .cdp-al{margin:4px 0 8px;white-space:nowrap;overflow:hidden}
-.doc .cdp-ass{margin:2px 0 10px}
-.doc .cdp-dados{width:100%;border-collapse:collapse}
-.doc .cdp-dados td{vertical-align:top;padding:0}
-.doc .cdp-l p{margin:0 0 8px}
-.doc .cdp-nota-c{width:112px;padding-left:8px!important}
-.doc .cdp-nota{width:108px;border-collapse:collapse}
-.doc .cdp-nota td{border:1px solid #222;height:82px;vertical-align:top;text-align:center;font-weight:700;font-size:7.5pt;padding:5px}
-.doc .cdp-cod{font-family:"IBM Plex Mono",Consolas,monospace;font-weight:600}
-.doc .cdp-crit{width:100%;border-collapse:collapse;margin:4px 0 12px;font-family:"Times New Roman",Times,serif;font-size:10pt;line-height:1.3}
-.doc .cdp-crit td{border:1px solid #222;padding:2px 6px;vertical-align:middle;text-align:justify}
-.doc .cdp-crit td.n{width:20px;text-align:center;font-family:Arial,sans-serif;font-size:7.5pt}
-.doc .cdp-ct{font-family:Arial,sans-serif;font-size:9pt}
-.doc .cdp-termo{font-family:Arial,sans-serif;font-size:7.5pt;line-height:1.7}
-.doc .cdp-termo b{font-size:8pt}
-.doc .cab .esc{text-align:center}
-.doc .cab .esc b{font-size:12pt;display:block}
-.doc .cab .logo{width:70px;text-align:center}
-.doc .cab .cod{text-align:center;font-family:var(--f-mono);font-size:10pt;white-space:nowrap}
-.doc .cab .logo img{max-width:60px;max-height:60px}
-.doc .lbl{font-size:8.5pt;text-transform:uppercase;letter-spacing:.04em;color:#555}
-.doc h1.tit{font-family:var(--f-doc);font-size:14pt;text-align:center;margin:14px 0 4px;text-transform:uppercase;letter-spacing:.03em}
-.doc .sub{text-align:center;font-size:10pt;color:#444;margin:0 0 10px}
-.doc .ori{border:1px solid #888;padding:6px 10px;margin:8px 0 14px;font-size:10pt}
-.doc .ori b{font-size:9pt;text-transform:uppercase;letter-spacing:.05em}
-.doc .ori ul{margin:4px 0 0;padding-left:18px}
-.doc .qq{margin:0 0 14px;page-break-inside:avoid}
-.doc .qq .qn{font-weight:700}
-.doc .ctx{border-left:3px solid #888;background:#f3f3f1;padding:6px 10px;margin:6px 0;white-space:pre-wrap}
-.doc .enun{white-space:pre-wrap;margin:4px 0}
-.doc .alts{margin:4px 0 0;padding:0;list-style:none}
-.doc .alts li{margin:2px 0}
-.doc .linha{border-bottom:1px solid #9a9a9a;height:22px;margin:0}
-.doc .calc{border:1px solid #9a9a9a;height:120px;margin-top:6px}
-.doc .calcref{border:1px dashed #777;padding:6px 10px;margin-top:6px;font-size:10pt}
-.doc .fc{margin-top:6px}
-.doc .fc-tit{text-align:center;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:13pt;letter-spacing:.08em;border:1.5px solid #222;padding:6px;margin:4px 0 2px}
-.doc .fc-sub{text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:10pt;margin-bottom:8px}
-.doc .fc-area{border:1px solid #555;padding:0 10px}
-.doc .fc-l{border-bottom:1px solid #c8c8c8;height:22pt;margin:0}
-.doc .fc-res{font-family:Arial,Helvetica,sans-serif;font-size:10.5pt;margin-top:10px;font-weight:700}
-.doc .afs{margin-bottom:6px}
-.pdfpage{width:186mm;background:#fff;color:#141414}
-.doc .gi td,.doc .gi th{font-size:8.5pt;padding:2px 4px}
-.doc .gab{border:1px solid #2e7548;background:#eef6f0;padding:5px 9px;margin-top:6px;font-size:10pt;white-space:pre-wrap}
-.doc .gab b{color:#2e7548}
-.doc .ok{font-weight:700;color:#2e7548}
-.doc .tb td,.doc .tb th{border:1px solid #777;padding:4px 7px;font-size:10pt;text-align:left}
-.doc .tb th{background:#eee}
-.doc .tb .num{text-align:right;font-family:var(--f-mono)}
-.doc h2.sec{font-family:var(--f-doc);font-size:11.5pt;text-transform:uppercase;letter-spacing:.04em;margin:18px 0 6px;border-bottom:1px solid #555;padding-bottom:2px}
-.doc .profmark{text-align:center;font-size:9pt;letter-spacing:.12em;color:#ad3535;font-weight:700;margin-bottom:6px}
-.doc.adapt .qq{border:1px solid #bbb;padding:8px 10px}
+/* estilos do documento impresso: gerados por docCss() (padrão ABNT, fonte única) */
+.pdfpage{width:160mm;background:#fff;color:#000}
 
 
 /* Página de entrada (mesma identidade das plataformas do CEDUP: verde profundo e dourado) */
@@ -290,10 +232,11 @@ details.box summary{cursor:pointer;font-weight:600;font-size:13px}
 @media (max-width:900px){.pt-wrap{grid-template-columns:1fr;gap:36px;padding-block:40px}.pt-card{padding:28px 24px}}
 #printArea{display:none}
 @media print{
-  body *{visibility:hidden}
-  #printArea,#printArea *{visibility:visible}
-  #printArea{display:block;position:absolute;left:0;top:0;width:100%}
-  @page{size:A4;margin:1.6cm}
+  html,body{background:#fff!important;margin:0!important;padding:0!important;height:auto!important}
+  body > *:not(#printArea){display:none!important}
+  #printArea{display:block!important}
+  @page{size:A4;margin:3cm 2cm 2cm 3cm;
+    @top-right{content:counter(page);font-family:Arial,Helvetica,sans-serif;font-size:10pt;vertical-align:bottom;padding-bottom:6mm}}
 }
 
 @media (max-width:1000px){
@@ -325,7 +268,7 @@ details.box summary{cursor:pointer;font-weight:600;font-size:13px}
   <aside class="side">
     <div class="brand"><b>Cria<span>Edu</span></b><small>Criação, adaptação e banco de atividades</small></div>
     <nav class="nav" id="nav"></nav>
-    <div class="foot" id="nuvemBox">Protótipo v0.12 · dados salvos neste navegador</div>
+    <div class="foot" id="nuvemBox">Protótipo v0.13 · dados salvos neste navegador</div>
   </aside>
   <main id="main"></main>
 </div>
@@ -1169,11 +1112,14 @@ function respostaCurta(q){
   return 'resposta pessoal';
 }
 
+/* cada parágrafo em um bloco próprio: evita cortar linhas na quebra de página do PDF */
+const linhasHTML = t => String(t).split('\n').map(l=>`<div class="lin">${rich(l)||'&nbsp;'}</div>`).join('');
+
 function questaoHTML(q,i,prof,perfil){
   const pts = `(${fmt(q.pontos)} ${num(q.pontos)===1?'ponto':'pontos'})`;
-  let h = `<div class="qq"><div><span class="qn">Questão ${i+1}</span> <span style="font-size:.85em;color:#555">${pts}</span>${perfil?' &nbsp;☐':''}</div>`;
-  if(q.contexto) h += `<div class="ctx">${q.tipo==='caso'?'<b>Situação prática</b>\n':''}${rich(q.contexto)}</div>`;
-  if(q.enunciado) h += `<div class="enun">${rich(q.enunciado)}</div>`;
+  let h = `<div class="qq"><div class="qh"><span class="qn">Questão ${i+1}</span> <span class="pts">${pts}</span>${perfil?' &nbsp;☐':''}</div>`;
+  if(q.contexto) h += `<div class="ctx">${q.tipo==='caso'?'<div class="lin"><b>Situação prática</b></div>':''}${linhasHTML(q.contexto)}</div>`;
+  if(q.enunciado) h += `<div class="enun">${linhasHTML(q.enunciado)}</div>`;
   if(q.tipo==='multipla'){
     h += '<ul class="alts">' + q.alternativas.map((t,j)=>{
       const certa = prof && j===q.correta;
@@ -1201,8 +1147,8 @@ function questaoHTML(q,i,prof,perfil){
 
 function docHTML(a, ver, aluno){
   const prof = ver==='prof', perfil = PERFIS[a.adaptacao], c = cont(a.conteudoId), d = disc(a.disciplinaId);
-  const fs = perfil ? 11.5*perfil.fonte : 11.5;
-  const style = `font-size:${fs.toFixed(1)}pt;line-height:${perfil?perfil.lh:1.45};${perfil&&perfil.sans?'font-family:Arial,Verdana,sans-serif;':''}`;
+  const fs = perfil ? 12*perfil.fonte : 12;
+  const style = perfil ? `font-size:${fs.toFixed(1)}pt;line-height:${Math.max(1.5, perfil.lh)};${perfil.sans?`font-family:${FONTES_DOC.arial.css};`:''}` : '';
   let h = `<div class="doc${perfil?' adapt':''}" style="${style}">`;
   if(prof) h += `<div class="profmark">VERSÃO DO PROFESSOR – NÃO DISTRIBUIR AOS ALUNOS</div>`;
   h += cabecalhoHTML(a, prof ? null : aluno);
@@ -1255,8 +1201,7 @@ function folhasCalculo(a, aluno, qs){
     for(let k=1;k<=nf;k++){
       h += QUEBRA + cabecalhoHTML(sem, aluno);
       h += `<div class="fc"><div class="fc-tit">FOLHA DE CÁLCULO</div><div class="fc-sub">Questão ${i+1}${nf>1?` · folha ${k} de ${nf}`:''}</div>`;
-      h += '<div class="fc-area">' + Array.from({length:16},()=>'<p class="fc-l">&nbsp;</p>').join('') + '</div>';
-      h += `<div class="fc-res">Resposta final da Questão ${i+1}: ______________________________________________</div></div>`;
+      h += '</div>';   // o restante da página fica em branco para os cálculos
     }
   });
   return h;
@@ -1270,7 +1215,7 @@ function gabaritosIndividuais(a, dest){
     h += `<tr><td class="num">${esc(codigoAluno(a,al))}</td><td>${esc(al.nome)}</td>${a.embaralharQuestoes?`<td>${qs.map(q=>q._orig).join(', ')}</td>`:''}${qs.map(q=>`<td>${esc(respostaCurta(q))}</td>`).join('')}</tr>`; });
   return h + '</table>';
 }
-const QUEBRA = '<br clear="all" class="pb" style="page-break-before:always">';
+const QUEBRA = '<p class="pb" style="page-break-before:always;break-before:page;margin:0;font-size:1pt;line-height:1pt">&nbsp;</p>';
 function docCopias(a, ver){
   const lista = alunosDe(a);
   if(ver==='aluno' && lista.length) return lista.map(al=>docHTML(a,'aluno',al)).join(QUEBRA);
@@ -1296,22 +1241,94 @@ function docTexto(a){
 }
 
 /* ---------- Exportação ---------- */
-const DOC_CSS_WORD = `body{font-family:'Times New Roman',serif}
-.calcref{border:1px dashed #777;padding:5pt 8pt;font-size:10pt}.fc-tit{text-align:center;font-family:Arial,sans-serif;font-weight:bold;font-size:13pt;border:1.5pt solid #222;padding:5pt;margin:4pt 0 2pt}.fc-sub{text-align:center;font-family:Arial,sans-serif;font-size:10pt;margin:0 0 6pt}.fc-area{border:1px solid #555;padding:0 8pt}.fc-l{border-bottom:1px solid #c8c8c8;height:22pt;margin:0}.fc-res{font-family:Arial,sans-serif;font-size:10.5pt;font-weight:bold;margin-top:8pt}
-.doc table{border-collapse:collapse;width:100%}.cab td{border:1px solid #555;padding:4px 7px;font-size:10pt}.cod{text-align:center;font-family:Consolas,monospace}
-.esc{text-align:center}.esc b{font-size:12pt;display:block}.lbl{font-size:8pt;color:#555;text-transform:uppercase}
-h1.tit{font-size:14pt;text-align:center;text-transform:uppercase;margin:12pt 0 2pt}.sub{text-align:center;font-size:10pt;color:#444}
-.ori{border:1px solid #888;padding:6px 10px;font-size:10pt}.qn{font-weight:bold}.ctx{border-left:3px solid #888;background:#f3f3f1;padding:6px 10px;white-space:pre-wrap}
-.enun{white-space:pre-wrap}.alts{list-style:none;padding:0}.linha{border-bottom:1px solid #999;margin:0;height:20pt}
-.calc{border:1px solid #999;height:110pt}.gi td,.gi th{font-size:8pt;padding:2pt 3pt}.gab{border:1px solid #2e7548;background:#eef6f0;padding:5px 9px;font-size:10pt;white-space:pre-wrap}
-.ok{font-weight:bold;color:#2e7548}.tb td,.tb th{border:1px solid #777;padding:4px 7px;font-size:10pt}.tb th{background:#eee}.num{text-align:right}
-h2.sec{font-size:11pt;text-transform:uppercase;border-bottom:1px solid #555;margin:14pt 0 4pt}.profmark{text-align:center;color:#ad3535;font-weight:bold;font-size:9pt}
-.adapt .qq{border:1px solid #bbb;padding:8px 10px;margin-bottom:10pt}
-.cdp{font-family:Arial,sans-serif;font-size:10.5pt}.cdp-tit{border-collapse:collapse;margin:2pt auto 8pt}.cdp-tit td{border:1px solid #222;text-align:center;font-weight:bold;font-size:10pt;padding:5pt 8pt}
-.cdp-al{margin:4pt 0 6pt}.cdp-dados{width:100%;border-collapse:collapse}.cdp-dados td{vertical-align:top}.cdp-l p{margin:0 0 6pt}
-.cdp-nota{border-collapse:collapse}.cdp-nota td{border:1px solid #222;height:62pt;width:80pt;vertical-align:top;text-align:center;font-weight:bold;font-size:7.5pt;padding:4pt}
-.cdp-crit{width:100%;border-collapse:collapse;font-family:'Times New Roman',serif;font-size:10pt}.cdp-crit td{border:1px solid #222;padding:2pt 5pt;text-align:justify}
-.cdp-crit td.n{width:14pt;text-align:center;font-family:Arial,sans-serif;font-size:7.5pt}.cdp-ct{font-family:Arial,sans-serif;font-size:9pt}.cdp-termo{font-family:Arial,sans-serif;font-size:7.5pt;line-height:1.6}.cdp-cod{font-family:Consolas,monospace}`;
+/* ============================================================
+   Documento no padrão ABNT (NBR 14724): uma única família de fonte,
+   texto 12 pt com espaçamento 1,5 e justificado; tabelas, notas e cabeçalho
+   em tamanho menor (10–11 pt) com espaçamento simples; margens 3/2/2/3 cm.
+   ============================================================ */
+const FONTES_DOC = {
+  arial:{nome:'Arial', css:"Arial, 'Liberation Sans', Helvetica, sans-serif"},
+  times:{nome:'Times New Roman', css:"'Times New Roman', 'Liberation Serif', Times, serif"}
+};
+const fonteDoc = () => (FONTES_DOC[S && S.escola && S.escola.fonte] || FONTES_DOC.arial).css;
+const REGRAS_DOC = `
+p{margin:0}
+table{border-collapse:collapse;width:100%}
+.cdp{font-size:11pt;line-height:1.3;margin:0 0 12pt;text-align:left}
+.faixa{display:block;width:100%;height:auto;margin:0 0 4pt}
+.cdp-tit{width:62%;margin:2pt auto 10pt;border-collapse:collapse}
+.cdp-tit td{border:1px solid #000;text-align:center;font-weight:bold;font-size:12pt;padding:4pt 8pt}
+.cdp-al{margin:0 0 6pt;white-space:nowrap;overflow:hidden}
+.cdp-ass{margin:0 0 8pt}
+.cdp-dados{width:100%;border-collapse:collapse}
+.cdp-dados td{vertical-align:top;padding:0}
+.cdp-l p{margin:0 0 6pt}
+.cdp-nota-c{width:30mm;padding-left:6pt}
+.cdp-nota{width:28mm;border-collapse:collapse}
+.cdp-nota td{border:1px solid #000;height:22mm;vertical-align:top;text-align:center;font-weight:bold;font-size:9pt;line-height:1.2;padding:3pt}
+.cdp-cod{font-weight:bold;letter-spacing:.02em}
+.cdp-crit{width:100%;border-collapse:collapse;margin:4pt 0 0;font-size:10pt;line-height:1.25}
+.cdp-crit td{border:1px solid #000;padding:2pt 5pt;vertical-align:middle;text-align:justify}
+.cdp-crit td.n{width:16pt;text-align:center}
+.cdp-ct{font-size:10pt}
+.cdp-termo{font-size:9pt;line-height:1.4}
+.cab td{border:1px solid #000;padding:3pt 6pt;font-size:10pt;line-height:1.3;vertical-align:middle;text-align:left}
+.esc{text-align:center}
+.esc b{font-size:12pt;display:block}
+.logo{width:70px;text-align:center}
+.cod{text-align:center;white-space:nowrap}
+.lbl{font-size:8pt;text-transform:uppercase;color:#444}
+h1.tit{font-size:12pt;font-weight:bold;text-align:center;text-transform:uppercase;margin:12pt 0 0;line-height:1.5}
+.sub{text-align:center;font-size:10pt;line-height:1.3;color:#333;margin:0 0 12pt}
+.ori{border:1px solid #000;padding:4pt 8pt;margin:0 0 12pt;font-size:10pt;line-height:1.3;text-align:left}
+.ori b{font-size:10pt;text-transform:uppercase}
+.ori ul{margin:2pt 0 0;padding-left:16pt}
+.qq{margin:0 0 12pt}
+.qh{margin:0 0 2pt}
+.qn{font-weight:bold}
+.pts{font-size:10pt;color:#333}
+.ctx{border-left:2pt solid #000;padding:2pt 0 2pt 8pt;margin:4pt 0;white-space:pre-wrap;text-align:justify}
+.enun{white-space:pre-wrap;margin:2pt 0}
+.alts{margin:2pt 0 0;padding:0;list-style:none}
+.alts li{margin:0}
+.afs{margin-bottom:4pt}
+.linha{border-bottom:1px solid #777;height:24pt;margin:0}
+.calc{border:1px solid #777;height:120pt;margin-top:4pt}
+.calcref{border:1px dashed #555;padding:3pt 8pt;margin-top:4pt;font-size:10pt;line-height:1.3;text-align:left}
+.fc-tit{text-align:center;font-weight:bold;font-size:12pt;letter-spacing:.06em;border:1px solid #000;padding:4pt;margin:0}
+.fc-sub{text-align:center;font-size:10pt;line-height:1.3;margin:2pt 0 6pt}
+.fc-area{border:1px solid #000;padding:0 8pt}
+.fc-l{border-bottom:1px solid #bbb;height:24pt;margin:0}
+.fc-res{font-size:11pt;font-weight:bold;margin-top:8pt;text-align:left}
+.gab{border:1px solid #2e7548;background:#eef6f0;padding:3pt 8pt;margin-top:4pt;font-size:10pt;line-height:1.3;white-space:pre-wrap;text-align:left}
+.gab b{color:#2e7548}
+.ok{font-weight:bold;color:#2e7548}
+.tb td,.tb th{border:1px solid #000;padding:3pt 6pt;font-size:10pt;line-height:1.3;text-align:left}
+.tb th{background:#eee}
+.tb .num{text-align:right}
+.gi td,.gi th{font-size:8pt;padding:2pt 3pt}
+h2.sec{font-size:12pt;font-weight:bold;text-transform:uppercase;margin:16pt 0 6pt;border-bottom:1px solid #000;padding-bottom:2pt}
+.profmark{text-align:center;font-size:10pt;font-weight:bold;color:#ad3535;margin-bottom:6pt}
+.adapt .qq{border:1px solid #999;padding:6pt 8pt}
+`;
+/* para a tela/impressão, prefixa cada seletor com .doc; o Word recebe as regras sem prefixo */
+function docCss(paraWord){
+  const F = fonteDoc();
+  const raiz = paraWord ? `body{font-family:${F};font-size:12pt;line-height:150%;color:#000;text-align:justify}`
+    : `.doc{font-family:${F};font-size:12pt;line-height:1.5;color:#000;text-align:justify;hyphens:manual}\n.doc *{font-family:inherit;letter-spacing:normal}`;
+  const regras = REGRAS_DOC.split('}').map(r=>r.trim()).filter(Boolean).map(r=>{
+    const [sel, dec] = r.split('{');
+    const sels = sel.split(',').map(x=>x.trim());
+    return (paraWord ? sels : sels.map(x=> x.startsWith('.adapt') ? '.doc'+x : '.doc '+x)).join(',') + '{' + dec + '}';
+  }).join('\n');
+  return raiz + '\n' + regras + (paraWord ? '' : '\n.doc .qh,.doc .alts,.doc .fc,.doc .cdp,.doc tr{break-inside:avoid}\n.doc .qh{break-after:avoid}');
+}
+function aplicarEstiloDoc(){
+  let el = document.getElementById('docStyle');
+  if(!el){ el = document.createElement('style'); el.id = 'docStyle'; document.head.appendChild(el); }
+  el.textContent = docCss(false);
+}
+
 
 /* Word: arquivo MHTML (.doc) com as imagens embutidas, para a faixa aparecer no Word */
 function b64utf8(str){
@@ -1352,7 +1369,7 @@ const nomeArquivoAluno = (a, al) => `${codigoAluno(a,al)}_${semAcento(al.nome).r
 function htmlWord(a, corpo){
   return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${esc(a.titulo)}</title>
 <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
-<style>@page Section1{size:21cm 29.7cm;margin:1.8cm}div.Section1{page:Section1}${DOC_CSS_WORD}</style></head><body><div class="Section1">${corpo}</div></body></html>`;
+<style>@page Section1{size:21cm 29.7cm;margin:3cm 2cm 2cm 3cm}div.Section1{page:Section1}${docCss(true)}</style></head><body><div class="Section1">${corpo}</div></body></html>`;
 }
 function baixarBlob(nome, blob){ const url=URL.createObjectURL(blob); const l=document.createElement('a'); l.href=url; l.download=nome; document.body.appendChild(l); l.click(); l.remove(); setTimeout(()=>URL.revokeObjectURL(url),4000); }
 /* Quem recebe arquivo próprio: 1 aluno = 1 arquivo; vários alunos + "um por aluno" = um arquivo de cada (em .zip) */
@@ -1386,8 +1403,11 @@ async function exportarPDF(a,ver){
     const zip = new JSZip();
     for(let k=0;k<pl.dest.length;k++){
       const al = pl.dest[k]; toast(`Gerando PDF ${k+1} de ${pl.dest.length}…`);
-      const blob = await html2pdf().set({margin:[12,12,12,12], image:{type:'jpeg',quality:0.95}, html2canvas:{scale:2, backgroundColor:'#ffffff', scrollX:0, scrollY:0}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['css','legacy'], avoid:['.qq','.cdp','.cdp-crit tr','tr','.fc']}})
-        .from(`<div class="pdfpage">${docHTML(a,'aluno',al)}</div>`,'string').outputPdf('blob');
+      const blob = await html2pdf().set({margin:[30,30,20,20], image:{type:'jpeg',quality:0.95}, html2canvas:{scale:2, backgroundColor:'#ffffff', scrollX:0, scrollY:0}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['css','legacy'], avoid:['.qh','.lin','.alts li','.cdp','.cdp-crit tr','tr','.fc','.calcref','.gab']}})
+        .from(`<div class="pdfpage">${docHTML(a,'aluno',al)}</div>`,'string').toPdf().get('pdf').then(pdf=>{
+          const n = pdf.internal.getNumberOfPages();
+          for(let pg=1; pg<=n; pg++){ pdf.setPage(pg); pdf.setFont('helvetica','normal'); pdf.setFontSize(10); pdf.text(String(pg), 210-20, 20, {align:'right'}); }
+        }).outputPdf('blob');
       zip.file(nomeArquivoAluno(a,al)+'.pdf', blob);
     }
     baixarBlob(`${a.codigo}_pdf_${pl.dest.length}_alunos.zip`, await zip.generateAsync({type:'blob'}));
@@ -1865,6 +1885,7 @@ function vModelos(){
     <section class="panel"><h2>Escola e professor</h2>
       <div class="fields">
         <label class="f">Professor(a)<input type="text" id="es-prof" data-esc="professor" value="${esc(E.professor)}" placeholder="Seu nome"></label>
+        <label class="f">Fonte dos documentos (ABNT)<select id="es-fonte" data-fonte="1">${Object.entries(FONTES_DOC).map(([k,v])=>`<option value="${k}"${(E.fonte||'arial')===k?' selected':''}>${v.nome}</option>`).join('')}</select></label>
         <label class="f">Nome da escola<input type="text" id="es-nome" data-esc="nome" value="${esc(E.nome)}"></label>
         <label class="f wide">Rede / mantenedora (estilo tabela)<input type="text" id="es-rede" data-esc="rede" value="${esc(E.rede)}"></label>
         <label class="f">Cidade<input type="text" id="es-cidade" data-esc="cidade" value="${esc(E.cidade)}"></label>
@@ -2034,6 +2055,7 @@ document.addEventListener('input', e=>{
 
 document.addEventListener('change', e=>{
   const t=e.target, d=t.dataset;
+  if(d.fonte){ S.escola.fonte=t.value; save(); aplicarEstiloDoc(); updCabPrev(); toast(`Documentos em ${FONTES_DOC[t.value].nome}.`); return; }
   if(d.faixa && t.files[0]){ const r=new FileReader(); r.onload=()=>{ S.escola.faixa=r.result; save(); render(); toast('Faixa do cabeçalho atualizada.'); }; r.readAsDataURL(t.files[0]); return; }
   if(d.correta!==undefined && cur){ cur.questoes[+d.q].correta=+d.correta; updPreview(); return; }
   if(d.pdfturma && t.files[0]){ lerPdfTurma(t.files[0]); return; }
@@ -2544,7 +2566,7 @@ function nuvemStatus(estado, erro=''){
   const el = document.getElementById('nuvemBox'); if(el) el.innerHTML = nuvemBoxHTML();
 }
 function nuvemBoxHTML(){
-  if(!nuvem.ativo) return 'Protótipo v0.12 · dados salvos neste navegador';
+  if(!nuvem.ativo) return 'Protótipo v0.13 · dados salvos neste navegador';
   if(!nuvem.user) return `<button class="btn sm pri" data-act="nuvem-entrar">Entrar com Google</button><span>Entre para salvar na nuvem e usar em qualquer computador.</span>`;
   const st = {ok:`Salvo na nuvem às ${nuvem.quando}`, pendente:'Salvando…', carregando:'Carregando da nuvem…', erro:`Erro ao salvar: ${esc(nuvem.erro)}`}[nuvem.estado] || '';
   return `<span class="nv ${nuvem.estado}">${st}</span><span>${esc(nuvem.user.email||'')}</span><button class="btn sm ghost" data-act="nuvem-sair">Sair</button>`;
@@ -2633,6 +2655,7 @@ async function nuvemSair(){ clearTimeout(nuvem.timer); if(nuvem.estado==='penden
 /* ---------- início ---------- */
 { const salvo = load(); S = salvo ? migrar(salvo) : seed(); save(); }
 const h = (location.hash||'').slice(1); if(NAV.some(n=>n[0]===h)) view=h;
+aplicarEstiloDoc();
 render();
 nuvemIniciar();
 </script>
