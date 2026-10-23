@@ -129,6 +129,8 @@ input[type=number]{font-family:var(--f-mono)}
 .tbl th,.tbl td{padding:6px 10px;border-bottom:1px solid var(--line)}
 .tbl .n{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
 .ckgroup{display:flex;flex-direction:column;gap:6px}
+.dgcalc{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:var(--accent-soft);display:flex;flex-direction:column;gap:4px}
+.dgcalc b{font-family:var(--f-mono);font-size:26px;font-weight:500;display:block;line-height:1.1}
 .cxgrid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px;align-items:start}
 .cxlist{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}
 .cxal{display:grid;grid-template-columns:26px 1fr auto;gap:8px;align-items:center;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:8px 6px;cursor:pointer;width:100%}
@@ -268,7 +270,7 @@ details.box summary{cursor:pointer;font-weight:600;font-size:13px}
   <aside class="side">
     <div class="brand"><b>Cria<span>Edu</span></b><small>Criação, adaptação e banco de atividades</small></div>
     <nav class="nav" id="nav"></nav>
-    <div class="foot" id="nuvemBox">Protótipo v0.16 · dados salvos neste navegador</div>
+    <div class="foot" id="nuvemBox">Protótipo v0.17 · dados salvos neste navegador</div>
   </aside>
   <main id="main"></main>
 </div>
@@ -2671,7 +2673,7 @@ function nuvemStatus(estado, erro=''){
   const el = document.getElementById('nuvemBox'); if(el) el.innerHTML = nuvemBoxHTML();
 }
 function nuvemBoxHTML(){
-  if(!nuvem.ativo) return 'Protótipo v0.16 · dados salvos neste navegador';
+  if(!nuvem.ativo) return 'Protótipo v0.17 · dados salvos neste navegador';
   if(!nuvem.user) return `<button class="btn sm pri" data-act="nuvem-entrar">Entrar com Google</button><span>Entre para salvar na nuvem e usar em qualquer computador.</span>`;
   const st = {ok:`Salvo na nuvem às ${nuvem.quando}`, pendente:'Salvando…', carregando:'Carregando da nuvem…', erro:`Erro ao salvar: ${esc(nuvem.erro)}`}[nuvem.estado] || '';
   return `<span class="nv ${nuvem.estado}">${st}</span><span>${esc(nuvem.user.email||'')}</span><button class="btn sm ghost" data-act="nuvem-sair">Sair</button>`;
@@ -2764,7 +2766,7 @@ async function nuvemSair(){ clearTimeout(nuvem.timer); if(nuvem.estado==='penden
    ============================================================ */
 const DIAS_SEMANA = [['1','Seg'],['2','Ter'],['3','Qua'],['4','Qui'],['5','Sex'],['6','Sáb']];
 function diarioPadrao(){
-  return {turmaId:'', disciplinaId:'', de:hoje(), ate:'', qtd:4, dias:[], alunoIds:[], rodape:''};
+  return {turmaId:'', disciplinaId:'', de:hoje(), ate:'', aulasSemana:2, dias:[], desconto:0, alunoIds:[], rodape:''};
 }
 function cfgDiario(){
   S.diario = Object.assign(diarioPadrao(), S.diario||{});
@@ -2775,16 +2777,29 @@ function cfgDiario(){
   return d;
 }
 const alunosDiario = d => (turma(d.turmaId)?.alunos||[]).filter(a=>d.alunoIds.includes(a.id)).sort((x,y)=>x.numero-y.numero);
-const qtdDiario = d => Math.max(1, Math.min(60, Math.round(num(d.qtd)||1)));
+/* quantidade de diários = aulas do período (cada aula, um diário)
+   com dias da semana marcados: ocorrências desses dias × aulas por dia; sem eles: dias úteis ÷ 5 × aulas por semana */
+function calcAulas(d){
+  const r = {uteis:0, ocorr:0, bruto:0, desc:Math.max(0,Math.round(num(d.desconto)||0)), total:0, txt:''};
+  if(!d.de || !d.ate || d.ate < d.de) return r;
+  const aps = Math.max(1, Math.min(20, Math.round(num(d.aulasSemana)||1))), fim = new Date(d.ate+'T12:00:00');
+  for(let x=new Date(d.de+'T12:00:00'); x<=fim; x.setDate(x.getDate()+1)){ const w=x.getDay(); if(w>=1&&w<=5) r.uteis++; if(d.dias.includes(String(w))) r.ocorr++; }
+  if(d.dias.length){
+    const porDia = aps / d.dias.length;
+    r.bruto = Math.round(r.ocorr * porDia);
+    const nomes = DIAS_SEMANA.filter(([k])=>d.dias.includes(k)).map(x=>x[1].toLowerCase()).join(', ');
+    r.txt = `${r.ocorr} dias com aula no período (${nomes}) × ${fmt(porDia).replace(',0','')} ${porDia===1?'aula':'aulas'} por dia = ${r.bruto} aulas`;
+  } else {
+    r.bruto = Math.round(r.uteis / 5 * aps);
+    r.txt = `${r.uteis} dias úteis (${fmt(r.uteis/5)} semanas) × ${aps} ${aps===1?'aula':'aulas'} por semana = ${r.bruto} aulas`;
+  }
+  r.total = Math.max(0, r.bruto - r.desc);
+  return r;
+}
+const qtdDiario = d => Math.max(1, Math.min(200, calcAulas(d).total || 1));
 function rodapeDiario(d){
   const ano = (d.de||hoje()).slice(0,4);
   return d.rodape || `Projeto Diário de Classe do Aluno – Aprendizagem Inclusiva | CEDUP Hermann Hering | Ano Letivo ${ano} | Prof. ${S.escola.professor||''}`;
-}
-function contarAulas(d){
-  if(!d.de || !d.ate || !d.dias.length) return 0;
-  let n=0; const fim = new Date(d.ate+'T12:00:00');
-  for(let x=new Date(d.de+'T12:00:00'); x<=fim; x.setDate(x.getDate()+1)) if(d.dias.includes(String(x.getDay()))) n++;
-  return n;
 }
 /* devolve as 2 páginas (frente e verso) de um diário */
 function diarioPaginas(d, al, k, n){
@@ -2834,6 +2849,7 @@ const nomeArqDiario = (d, al) => `Diario_${semAcento(disc(d.disciplinaId)?.nome|
 function validarDiario(d){
   if(!d.de || !d.ate){ toast('Informe o período: data inicial e data final.'); return false; }
   if(d.ate < d.de){ toast('A data final do período é anterior à data inicial.'); return false; }
+  if(!calcAulas(d).total){ toast('Nenhuma aula no período: confira as datas, as aulas por semana e os descontos.'); return false; }
   return true;
 }
 let modoArqDiario = 'separado';
@@ -2893,7 +2909,7 @@ function htmlWordDiario(corpo, esq){
 
 /* ---------- tela ---------- */
 function vDiario(){
-  const d = cfgDiario(), t = turma(d.turmaId), lista = alunosDiario(d), n = qtdDiario(d), calc = contarAulas(d);
+  const d = cfgDiario(), t = turma(d.turmaId), lista = alunosDiario(d), n = qtdDiario(d), ca = calcAulas(d);
   const opt = (arr, v) => arr.map(([k,nm])=>`<option value="${k}"${v===k?' selected':''}>${esc(nm)}</option>`).join('');
   const ex = diarioPaginas(d, lista[0]||null, 1, n);
   return `<div class="head"><div><h1>Diário de Classe do Aluno</h1><p class="lead">Registro diário da aprendizagem para os alunos que precisam de acompanhamento. Cada aula do período gera um diário de 2 páginas (frente e verso). A data da aula e o nome do 2º professor ficam em branco para preenchimento à mão.</p></div></div>
@@ -2905,18 +2921,19 @@ function vDiario(){
           <label class="f">Disciplina<select id="dg-disc" data-dg="disciplinaId">${opt(S.disciplinas.map(x=>[x.id,x.nome]), d.disciplinaId)}</select></label>
           <label class="f">Período: de<input type="date" id="dg-de" data-dg="de" value="${esc(d.de)}"></label>
           <label class="f">até<input type="date" id="dg-ate" data-dg="ate" value="${esc(d.ate)}"></label>
-          <label class="f">Quantidade de aulas (diários por aluno)<input type="number" id="dg-qtd" min="1" max="60" data-dg="qtd" value="${n}"></label>
+          <label class="f">Aulas por semana<input type="number" id="dg-aps" min="1" max="20" data-dg="aulasSemana" value="${esc(d.aulasSemana)}"></label>
+          <label class="f">Aulas a descontar (feriados, conselhos…)<input type="number" id="dg-desc" min="0" max="100" data-dg="desconto" value="${esc(d.desconto||0)}"></label>
         </div>
-        <details class="box"${d.dias.length?' open':''}><summary>Calcular a quantidade pelos dias da semana com aula</summary>
-          <div class="row" style="margin-top:8px">${DIAS_SEMANA.map(([k,nm])=>`<label class="ck"><input type="checkbox" id="dg-d${k}" data-dgdia="${k}" ${d.dias.includes(k)?'checked':''}> ${nm}</label>`).join('')}
-          <button class="btn sm" data-act="dg-calc">Usar ${calc} ${calc===1?'aula':'aulas'}</button></div>
-          <p class="note">Conta os dias marcados dentro do período. Retire feriados e dias sem aula ajustando a quantidade. As datas não são impressas.</p></details>
+        <div class="ckgroup"><span class="cklab">Dias da semana com aula (opcional, deixa o cálculo exato pelo calendário)</span>
+          <div class="row">${DIAS_SEMANA.map(([k,nm])=>`<label class="ck"><input type="checkbox" id="dg-d${k}" data-dgdia="${k}" ${d.dias.includes(k)?'checked':''}> ${nm}</label>`).join('')}</div></div>
+        <div class="dgcalc">${ca.bruto ? `<div><span class="cklab">Diários por aluno</span><b>${ca.total}</b></div><p class="note">${esc(ca.txt)}${ca.desc?` − ${ca.desc} ${ca.desc===1?'aula descontada':'aulas descontadas'} = ${ca.total}`:''}. Cada aula gera um diário.</p>`
+          : `<p class="note">Informe o período (de … até …) e as aulas por semana para calcular a quantidade de diários.</p>`}</div>
         <label class="f">Texto do rodapé<input type="text" id="dg-rod" data-dg="rodape" value="${esc(d.rodape)}" placeholder="${esc(rodapeDiario(Object.assign({},d,{rodape:''})))}"></label>
       </section>
       <section class="panel"><div class="qhead"><h3>Alunos</h3><span class="badge ${lista.length?'ok':'warn'}">${lista.length} de ${t?t.alunos.length:0} selecionados</span></div>
         ${!t ? '<p class="note">Cadastre uma turma em Cadastros.</p>' : `<div class="row"><button class="btn sm" data-act="dg-todos">Todos</button><button class="btn sm" data-act="dg-nenhum">Nenhum</button></div>
         <div class="alunos">${[...t.alunos].sort((x,y)=>x.numero-y.numero).map(x=>`<label class="al"><input type="checkbox" id="dga-${x.id}" data-dgal="${x.id}" ${d.alunoIds.includes(x.id)?'checked':''}><span class="num">${x.numero}</span><span class="nm">${esc(x.nome)}</span><span class="mat">${esc(x.matricula)}</span></label>`).join('')}</div>`}
-        <p class="note">${lista.length ? `Serão gerados <b>${lista.length*n} diários</b> (${n} por aluno), <b>${lista.length*n*2} páginas</b> no total.` : 'Sem alunos marcados, sai um diário com nome e matrícula em branco.'}</p>
+        <p class="note">${lista.length ? `Serão gerados <b>${lista.length*n} diários</b> (${n} por aluno), <b>${lista.length*n*2} páginas</b> no total.` : `Sem alunos marcados, saem ${n} ${n===1?'diário':'diários'} com nome e matrícula em branco (${n*2} páginas).`}</p>
       </section>
     </div>
     <div class="prevcol">
@@ -2934,7 +2951,6 @@ document.addEventListener('click', e=>{
   const d = cfgDiario(), t = turma(d.turmaId), act = b.dataset.act;
   if(act==='dg-todos'){ d.alunoIds = (t?.alunos||[]).map(x=>x.id); save(); rerenderEditor(); }
   if(act==='dg-nenhum'){ d.alunoIds = []; save(); rerenderEditor(); }
-  if(act==='dg-calc'){ const c = contarAulas(d); if(!c){ toast('Informe o período e marque os dias da semana com aula.'); return; } d.qtd = c; save(); rerenderEditor(); toast(`Quantidade ajustada para ${c} aulas.`); }
   if(act==='dg-modo'){ modoArqDiario = b.dataset.v; rerenderEditor(); }
   if(act==='dg-pdf') exportarDiario('pdf');
   if(act==='dg-word') exportarDiario('word');
@@ -2942,7 +2958,7 @@ document.addEventListener('click', e=>{
 document.addEventListener('change', e=>{
   if(view!=='diario') return;
   const t = e.target, ds = t.dataset, d = cfgDiario();
-  if(ds.dg){ d[ds.dg] = ds.dg==='qtd' ? Math.max(1,Math.min(60,Math.round(num(t.value)||1))) : t.value; if(ds.dg==='turmaId') d.alunoIds=[]; save(); setTimeout(rerenderEditor); }
+  if(ds.dg){ d[ds.dg] = ['aulasSemana','desconto'].includes(ds.dg) ? Math.max(0,Math.round(num(t.value)||0)) : t.value; if(ds.dg==='turmaId') d.alunoIds=[]; save(); setTimeout(rerenderEditor); }
   else if(ds.dgdia){ d.dias = t.checked ? [...new Set([...d.dias, ds.dgdia])].sort() : d.dias.filter(x=>x!==ds.dgdia); save(); rerenderEditor(); }
   else if(ds.dgal){ d.alunoIds = t.checked ? [...new Set([...d.alunoIds, ds.dgal])] : d.alunoIds.filter(x=>x!==ds.dgal); save(); rerenderEditor(); }
 });
