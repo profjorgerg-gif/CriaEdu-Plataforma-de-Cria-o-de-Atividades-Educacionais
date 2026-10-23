@@ -239,6 +239,13 @@ details.box summary{cursor:pointer;font-weight:600;font-size:13px}
 .doc .alts li{margin:2px 0}
 .doc .linha{border-bottom:1px solid #9a9a9a;height:22px;margin:0}
 .doc .calc{border:1px solid #9a9a9a;height:120px;margin-top:6px}
+.doc .calcref{border:1px dashed #777;padding:6px 10px;margin-top:6px;font-size:10pt}
+.doc .fc{margin-top:6px}
+.doc .fc-tit{text-align:center;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:13pt;letter-spacing:.08em;border:1.5px solid #222;padding:6px;margin:4px 0 2px}
+.doc .fc-sub{text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:10pt;margin-bottom:8px}
+.doc .fc-area{border:1px solid #555;padding:0 10px}
+.doc .fc-l{border-bottom:1px solid #c8c8c8;height:22pt;margin:0}
+.doc .fc-res{font-family:Arial,Helvetica,sans-serif;font-size:10.5pt;margin-top:10px;font-weight:700}
 .doc .afs{margin-bottom:6px}
 .pdfpage{width:186mm;background:#fff;color:#141414}
 .doc .gi td,.doc .gi th{font-size:8.5pt;padding:2px 4px}
@@ -317,7 +324,7 @@ details.box summary{cursor:pointer;font-weight:600;font-size:13px}
   <aside class="side">
     <div class="brand"><b>Cria<span>Edu</span></b><small>Criação, adaptação e banco de atividades</small></div>
     <nav class="nav" id="nav"></nav>
-    <div class="foot" id="nuvemBox">Protótipo v0.10 · dados salvos neste navegador</div>
+    <div class="foot" id="nuvemBox">Protótipo v0.11 · dados salvos neste navegador</div>
   </aside>
   <main id="main"></main>
 </div>
@@ -643,7 +650,7 @@ function alunosDe(a){
   const t = turma(a.turmaId); if(!t) return [];
   return t.alunos.filter(x=>a.alunoIds.includes(x.id)).sort((x,y)=>x.numero-y.numero);
 }
-const novaQ = tipo => ({id:uid(),tipo,enunciado:tipo==='afirmativas'?'Analise as afirmativas:':'',contexto:'',alternativas:tipo==='multipla'?['','','','']:[],correta:0,itens:tipo==='vf'?[{t:'',v:'V'},{t:'',v:'F'}]:tipo==='afirmativas'?[{t:'',v:'V'},{t:'',v:'F'},{t:'',v:'V'}]:[],linhas:5,gabarito:'',pontos:1});
+const novaQ = tipo => ({id:uid(),folhas:0,tipo,enunciado:tipo==='afirmativas'?'Analise as afirmativas:':'',contexto:'',alternativas:tipo==='multipla'?['','','','']:[],correta:0,itens:tipo==='vf'?[{t:'',v:'V'},{t:'',v:'F'}]:tipo==='afirmativas'?[{t:'',v:'V'},{t:'',v:'F'},{t:'',v:'V'}]:[],linhas:5,gabarito:'',pontos:1});
 
 /* ============================================================
    Gerador automático de questões
@@ -1172,7 +1179,10 @@ function questaoHTML(q,i,prof,perfil){
     h += '<div class="enun">Assinale a alternativa correta:</div><ul class="alts">' + al.textos.map((t,j)=>{ const certa = prof && j===al.correta; return `<li${certa?' class="ok"':''}>(${certa?'X':'&nbsp;&nbsp;'}) ${letra(j)}) ${esc(t)}</li>`; }).join('') + '</ul>';
     if(prof) h += `<div class="gab"><b>Gabarito:</b> alternativa ${letra(al.correta)} – corretas: ${al.corretas.map(x=>ROMANOS[x]).join(', ')||'nenhuma'}</div>`;
   } else if(q.tipo==='calculo'){
-    if(!prof) h += `<div class="calc"></div>`;
+    const nf = Math.max(0, Math.round(num(q.folhas)));
+    if(nf && !prof) h += `<div class="calcref">Desenvolva os cálculos ${nf>1?`nas <b>${nf} folhas de cálculo</b>`:'na <b>folha de cálculo</b>'} da Questão ${i+1}, anexa${nf>1?'s':''} ao final da atividade.</div>`;
+    else if(nf && prof) h += `<div class="calcref">Resolução nas folhas de cálculo anexas: ${nf} ${nf>1?'folhas':'folha'} (versão do aluno).</div>`;
+    else if(!prof) h += `<div class="calc"></div>`;
   } else if(!prof){
     const n = Math.max(1, Math.round(num(q.linhas)||5) + (perfil?2:0));
     h += Array.from({length:n},()=>'<p class="linha">&nbsp;</p>').join('');
@@ -1200,7 +1210,9 @@ function docHTML(a, ver, aluno){
   if(ori.length || extra.length){
     h += `<div class="ori"><b>Orientações</b><ul>${ori.concat(extra).map(x=>`<li>${rich(x)}</li>`).join('')}</ul></div>`;
   }
-  questoesPara(a, prof?null:aluno).forEach((q,i)=> h += questaoHTML(q,i,prof,perfil));
+  const qsDoc = questoesPara(a, prof?null:aluno);
+  qsDoc.forEach((q,i)=> h += questaoHTML(q,i,prof,perfil));
+  if(!prof) h += folhasCalculo(a, aluno, qsDoc);
 
   if(prof){
     h += `<h2 class="sec">Distribuição da pontuação</h2><table class="tb"><tr><th>Questão</th><th>Tipo</th><th class="num">Pontos</th></tr>` +
@@ -1225,6 +1237,22 @@ function docHTML(a, ver, aluno){
     if(S.diretrizes.avaliacao) h += `<h2 class="sec">Diretrizes de avaliação</h2><ul>${S.diretrizes.avaliacao.split('\n').filter(x=>x.trim()).map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p style="font-size:10pt">Média mínima para aprovação: ${fmt(S.diretrizes.media)}</p>`;
   }
   return h + '</div>';
+}
+
+/* Folhas de cálculo: uma página por folha, com o cabeçalho da 1ª página (sem critérios e termo) */
+function folhasCalculo(a, aluno, qs){
+  const sem = Object.assign({}, a, {cab: Object.assign({}, a.cab, {campos: Object.assign({}, a.cab.campos, {criterios:false, termo:false})})});
+  let h = '';
+  qs.forEach((q,i)=>{
+    const nf = q.tipo==='calculo' ? Math.max(0, Math.round(num(q.folhas))) : 0;
+    for(let k=1;k<=nf;k++){
+      h += QUEBRA + cabecalhoHTML(sem, aluno);
+      h += `<div class="fc"><div class="fc-tit">FOLHA DE CÁLCULO</div><div class="fc-sub">Questão ${i+1}${nf>1?` · folha ${k} de ${nf}`:''}</div>`;
+      h += '<div class="fc-area">' + Array.from({length:16},()=>'<p class="fc-l">&nbsp;</p>').join('') + '</div>';
+      h += `<div class="fc-res">Resposta final da Questão ${i+1}: ______________________________________________</div></div>`;
+    }
+  });
+  return h;
 }
 
 function gabaritosIndividuais(a, dest){
@@ -1262,6 +1290,7 @@ function docTexto(a){
 
 /* ---------- Exportação ---------- */
 const DOC_CSS_WORD = `body{font-family:'Times New Roman',serif}
+.calcref{border:1px dashed #777;padding:5pt 8pt;font-size:10pt}.fc-tit{text-align:center;font-family:Arial,sans-serif;font-weight:bold;font-size:13pt;border:1.5pt solid #222;padding:5pt;margin:4pt 0 2pt}.fc-sub{text-align:center;font-family:Arial,sans-serif;font-size:10pt;margin:0 0 6pt}.fc-area{border:1px solid #555;padding:0 8pt}.fc-l{border-bottom:1px solid #c8c8c8;height:22pt;margin:0}.fc-res{font-family:Arial,sans-serif;font-size:10.5pt;font-weight:bold;margin-top:8pt}
 .doc table{border-collapse:collapse;width:100%}.cab td{border:1px solid #555;padding:4px 7px;font-size:10pt}.cod{text-align:center;font-family:Consolas,monospace}
 .esc{text-align:center}.esc b{font-size:12pt;display:block}.lbl{font-size:8pt;color:#555;text-transform:uppercase}
 h1.tit{font-size:14pt;text-align:center;text-transform:uppercase;margin:12pt 0 2pt}.sub{text-align:center;font-size:10pt;color:#444}
@@ -1350,7 +1379,7 @@ async function exportarPDF(a,ver){
     const zip = new JSZip();
     for(let k=0;k<pl.dest.length;k++){
       const al = pl.dest[k]; toast(`Gerando PDF ${k+1} de ${pl.dest.length}…`);
-      const blob = await html2pdf().set({margin:[12,12,12,12], image:{type:'jpeg',quality:0.95}, html2canvas:{scale:2, backgroundColor:'#ffffff'}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['css','legacy'], avoid:['.qq','.cdp','.cdp-crit tr','tr']}})
+      const blob = await html2pdf().set({margin:[12,12,12,12], image:{type:'jpeg',quality:0.95}, html2canvas:{scale:2, backgroundColor:'#ffffff', scrollX:0, scrollY:0}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['css','legacy'], avoid:['.qq','.cdp','.cdp-crit tr','tr','.fc']}})
         .from(`<div class="pdfpage">${docHTML(a,'aluno',al)}</div>`,'string').outputPdf('blob');
       zip.file(nomeArquivoAluno(a,al)+'.pdf', blob);
     }
@@ -1648,6 +1677,7 @@ function qForm(q,i){
   if(q.tipo==='vf'||q.tipo==='afirmativas'){
     h += `<div style="display:flex;flex-direction:column;gap:5px">${q.tipo==='afirmativas'?'<span class="note afs-ed">Marque V nas afirmativas corretas. As alternativas (Apenas I, I e II…) são montadas automaticamente.</span>':''}` + q.itens.map((it,j)=>`<div class="vf">${q.tipo==='afirmativas'?`<b style="position:absolute;margin-left:-22px">${ROMANOS[j]||''}</b>`:''}<input type="text" id="q${i}v${j}" data-q="${i}" data-vi="${j}" data-vf="t" value="${esc(it.t)}" placeholder="Afirmativa"><select id="q${i}s${j}" data-q="${i}" data-vi="${j}" data-vf="v"><option ${it.v==='V'?'selected':''}>V</option><option ${it.v==='F'?'selected':''}>F</option></select><button class="btn sm ghost" data-act="rm-vf" data-i="${i}" data-j="${j}" aria-label="Remover afirmativa">✕</button></div>`).join('') + `<button class="btn sm" data-act="add-vf" data-i="${i}" style="align-self:flex-start">+ Afirmativa</button></div>`;
   }
+  if(q.tipo==='calculo') h += `<div class="row"><label class="f" style="flex-direction:row;align-items:center;gap:6px">Folhas de cálculo<input type="number" id="q${i}fc" min="0" max="10" style="width:70px" data-q="${i}" data-qf="folhas" value="${num(q.folhas)}"></label><span class="note">${num(q.folhas)?`Cada folha sai em página própria, com o cabeçalho da 1ª página e o título FOLHA DE CÁLCULO.`:'0 = espaço para cálculo logo abaixo da questão.'}</span></div>`;
   if(q.tipo==='dissertativa'||q.tipo==='caso') h += `<label class="f" style="flex-direction:row;align-items:center;gap:6px">Linhas para resposta<input type="number" id="q${i}l" min="1" max="30" style="width:70px" data-q="${i}" data-qf="linhas" value="${q.linhas}"></label>`;
   if(q.tipo==='afirmativas' && q.itens.length){ const al=alternativasAfirmativas(q.itens); h += `<p class="note">Alternativas: ${al.textos.map((t,j)=>`${letra(j)}) ${esc(t)}`).join(' · ')} — gabarito <b>${letra(al.correta)}</b></p>`; }
   if(q.tipo!=='vf' && q.tipo!=='afirmativas') h += `<label class="f">Gabarito / resposta esperada (só na versão do professor)<textarea id="q${i}g" data-q="${i}" data-qf="gabarito" rows="2">${esc(q.gabarito)}</textarea></label>`;
@@ -1985,7 +2015,8 @@ document.addEventListener('input', e=>{
     if(d.f==='modalidade' && !MODALIDADES[t.value].periodos.includes(cur.cab.trimestre)) cur.cab.trimestre='';
     if(['tipo','adaptacao','disciplinaId','modalidade'].includes(d.f)){ if(d.f==='disciplinaId'){ const c=cont(cur.conteudoId); if(c&&c.disciplinaId!==t.value) cur.conteudoId=''; } rerenderEditor(); return; }
   }
-  else if(d.qf){ const q=cur.questoes[+d.q]; q[d.qf] = (d.qf==='pontos'||d.qf==='linhas') ? num(t.value) : t.value; if(d.qf!=='pontos'&&d.qf!=='linhas') fixarQ(q); }
+  else if(d.qf){ const q=cur.questoes[+d.q], nume=['pontos','linhas','folhas'].includes(d.qf); q[d.qf] = nume ? num(t.value) : t.value; if(!nume) fixarQ(q);
+    if(d.qf==='folhas'){ q.folhas=Math.max(0,Math.min(10,Math.round(num(t.value)))); const nt=t.closest('.row')?.querySelector('.note'); if(nt) nt.textContent = q.folhas?'Cada folha sai em página própria, com o cabeçalho da 1ª página e o título FOLHA DE CÁLCULO.':'0 = espaço para cálculo logo abaixo da questão.'; } }
   else if(d.alt!==undefined){ const q=cur.questoes[+d.q]; q.alternativas[+d.alt]=t.value; fixarQ(q); }
   else if(d.correta!==undefined){ const q=cur.questoes[+d.q]; q.correta=+d.correta; fixarQ(q); }
   else if(d.vi!==undefined){ const q=cur.questoes[+d.q]; q.itens[+d.vi][d.vf]=t.value; fixarQ(q); }
@@ -2242,6 +2273,7 @@ COMO CORRIGIR
 - Em todas, escreva "comentario" curto e objetivo, dirigido ao aluno (no máximo 2 frases).
 - Não invente: se não conseguir ler uma resposta, use null e diga isso no comentário. Se faltar a entrega de um aluno, não o inclua.
 - Use o número da questão (q) como aparece impresso na folha do aluno.
+- Nas questões de cálculo, considere também as FOLHAS DE CÁLCULO anexas ao final da atividade, identificadas pelo número da questão.
 
 ENTREGA DO RESULTADO EM ARQUIVO .ZIP
 Depois de corrigir, gere um arquivo para download chamado correcao_${a.codigo}.zip contendo:
@@ -2505,7 +2537,7 @@ function nuvemStatus(estado, erro=''){
   const el = document.getElementById('nuvemBox'); if(el) el.innerHTML = nuvemBoxHTML();
 }
 function nuvemBoxHTML(){
-  if(!nuvem.ativo) return 'Protótipo v0.10 · dados salvos neste navegador';
+  if(!nuvem.ativo) return 'Protótipo v0.11 · dados salvos neste navegador';
   if(!nuvem.user) return `<button class="btn sm pri" data-act="nuvem-entrar">Entrar com Google</button><span>Entre para salvar na nuvem e usar em qualquer computador.</span>`;
   const st = {ok:`Salvo na nuvem às ${nuvem.quando}`, pendente:'Salvando…', carregando:'Carregando da nuvem…', erro:`Erro ao salvar: ${esc(nuvem.erro)}`}[nuvem.estado] || '';
   return `<span class="nv ${nuvem.estado}">${st}</span><span>${esc(nuvem.user.email||'')}</span><button class="btn sm ghost" data-act="nuvem-sair">Sair</button>`;
