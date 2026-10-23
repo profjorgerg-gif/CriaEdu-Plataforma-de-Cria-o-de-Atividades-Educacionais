@@ -2,8 +2,9 @@
 
 Protótipo para criar, organizar e adaptar atividades: exercícios, provas, trabalhos, estudos de caso, Recuperação Paralela (RP), Regime de Atendimento Domiciliar (RAD) e atividades adaptadas para alunos PCD.
 
-## O que já funciona (v0.17)
+## O que já funciona (v0.18)
 
+- **Diário de Classe no banco de atividades**: cada emissão pode ser salva com código próprio (DIA-AAAA-NNNN), turma, disciplina, alunos, período e aulas por semana. No banco, filtre por "Diário de Classe" para abrir e reimprimir ou reutilizar em outro período ou turma.
 - **Diário de Classe – quantidade automática**: a partir do período, das aulas por semana e, opcionalmente, dos dias da semana com aula, a plataforma calcula quantos diários imprimir (cada aula, um diário), descontando feriados e conselhos informados.
 - **Diário de Classe do Aluno** (aba própria): registro diário da aprendizagem para os alunos que precisam de acompanhamento. O professor escolhe turma, alunos, disciplina, período (de/até) e a quantidade de aulas (com cálculo opcional pelos dias da semana). Cada aula gera um diário de 2 páginas (frente e verso), numerado ("Diário 3 de 8"), com a data da aula e o 2º professor em branco para preenchimento. Saída em PDF ou Word, um arquivo por aluno (.zip) ou arquivo único.
 - **Novo modelo de documento (aprovado em 23/10/2026)**: cabeçalho em grade com rótulos acima dos dados, quadro de nota ao lado de Aluno e Assinatura, Observações no padrão "Título – texto", título sem linha repetida, questão com faixa "QUESTÃO n · pontos", parágrafos com recuo de 1,25 cm, dados no formato "item: valor" em tabela automática, código da atividade no rodapé de cada página e numeração no canto superior direito. Moldura opcional (Cabeçalho › Blocos › Moldura na página).
@@ -102,6 +103,7 @@ Cada atualização é entregue em um .zip com data e hora no nome (ex.: `criaedu
 
 | Versão | Data | Principais mudanças |
 | --- | --- | --- |
+| v0.18 | 23/10/2026 | Diário de Classe salvo no banco de atividades |
 | v0.17 | 23/10/2026 | Diário de Classe: cálculo automático da quantidade de diários |
 | v0.16 | 23/10/2026 | Diário de Classe do Aluno (frente e verso, por período) |
 | v0.15 | 23/10/2026 | Novo modelo de documento aprovado (cabeçalho em grade, tabela de dados, rodapé com código, moldura opcional) |
