@@ -268,7 +268,7 @@ details.box summary{cursor:pointer;font-weight:600;font-size:13px}
   <aside class="side">
     <div class="brand"><b>Cria<span>Edu</span></b><small>Criação, adaptação e banco de atividades</small></div>
     <nav class="nav" id="nav"></nav>
-    <div class="foot" id="nuvemBox">Protótipo v0.15 · dados salvos neste navegador</div>
+    <div class="foot" id="nuvemBox">Protótipo v0.16 · dados salvos neste navegador</div>
   </aside>
   <main id="main"></main>
 </div>
@@ -544,6 +544,7 @@ function migrar(o){
   o.cabecalhos.forEach(m=>{ if(m.campos.assinatura===undefined) m.campos.assinatura = true; });
   if(!o.criteriosProva) o.criteriosProva = criteriosPadrao();
   if(!o.termo) o.termo = clone(TERMO_PADRAO);
+  if(!o.diario) o.diario = null;
   if(o.escola.faixa === undefined) o.escola.faixa = '';
   if(!o.escola.professor) o.escola.professor = 'JORGE LIMA CARDOSO';
   [...o.atividades].sort((a,b)=>a.criadaEm-b.criadaEm).forEach(a=>{
@@ -1347,6 +1348,30 @@ h1.tit{font-size:12pt;font-weight:bold;text-align:center;text-transform:uppercas
 h2.sec{font-size:12pt;font-weight:bold;text-transform:uppercase;margin:6mm 0 2mm;border-bottom:1pt solid #000;padding-bottom:1mm}
 .profmark{text-align:center;font-size:10pt;font-weight:bold;color:#ad3535;margin-bottom:2mm}
 .adapt .qq{border:.75pt solid #999;padding:2mm 3mm}
+.dg{font-size:11pt;line-height:1.3;text-align:left}
+.dg-h1{font-size:13pt;font-weight:bold;text-align:center;margin:3mm 0 0;line-height:1.3}
+.dg-st{text-align:center;font-weight:bold;font-size:11pt;margin:0}
+.dg-nt{text-align:center;font-size:8.5pt;margin:1mm 0 3mm}
+.dg-obj{border:.75pt solid #000;padding:1.5mm 3mm;font-size:9.5pt;line-height:1.3;text-align:justify;margin:0 0 3mm}
+.dg-g{width:100%;border-collapse:collapse;table-layout:fixed;margin:0 0 4mm}
+.dg-g td{border:.75pt solid #000;padding:1mm 2mm;vertical-align:top;font-size:10pt;line-height:1.25}
+.dg-g .l{display:block;font-size:7pt;font-weight:bold;text-transform:uppercase;letter-spacing:.03em;margin-bottom:.5mm}
+.dg-g .v{display:block;min-height:4.4mm}
+.dg-q{margin:0 0 2.5mm}
+.dg-qt{font-size:11pt;line-height:1.3;margin:0 0 1mm}
+.dg-ln{border-bottom:.75pt solid #888;height:7mm}
+.dg-id{width:100%;border-collapse:collapse;margin:0 0 4mm}
+.dg-id td{border-top:.75pt solid #000;border-bottom:.75pt solid #000;padding:1mm 2mm;font-size:9.5pt}
+.dg-id td.r{text-align:right}
+.dg-op2{width:100%;border-collapse:collapse;margin:0 0 2mm}
+.dg-op2 td{vertical-align:top;width:50%;padding:0 4mm 4mm 0;font-size:10.5pt}
+.dg-op{margin:0 0 1.6mm}
+.dg-bx{display:inline-block;width:3.2mm;height:3.2mm;border:.75pt solid #000;margin-right:2mm;vertical-align:-.4mm}
+.dg-esc{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:1mm}
+.dg-esc td{border:.75pt solid #000;text-align:center;padding:1.2mm 0;font-size:10pt;width:10%}
+.dg-vist{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:10mm}
+.dg-vist td{text-align:center;font-size:9.5pt;padding-top:1mm;border-top:.75pt solid #000;width:45%}
+.dg-vist td.sp{border:0;width:10%}
 `;
 /* para a tela/impressão, prefixa cada seletor com .doc; o Word recebe as regras sem prefixo */
 function docCss(paraWord){
@@ -1504,7 +1529,7 @@ async function copiar(texto){
    ============================================================ */
 let modoArquivo = 'separado';
 let view = 'painel', cur = null, prevVer = 'aluno', prevAluno = '', buscaAluno = '', filtro = {q:'',tipo:'',mod:'',disc:'',dif:'',pcd:''};
-const NAV = [['painel','Painel'],['banco','Banco de atividades'],['editor','Nova atividade'],['correcao','Correção'],['cadastros','Cadastros'],['modelos','Modelos e diretrizes'],['backup','Backup']];
+const NAV = [['painel','Painel'],['banco','Banco de atividades'],['editor','Nova atividade'],['correcao','Correção'],['diario','Diário de Classe'],['cadastros','Cadastros'],['modelos','Modelos e diretrizes'],['backup','Backup']];
 
 function renderNav(){
   document.getElementById('nav').innerHTML = NAV.map(([k,n])=>{
@@ -1515,7 +1540,7 @@ function go(v){ view=v; render(); window.scrollTo(0,0); }
 function render(){
   renderNav();
   const m = document.getElementById('main');
-  m.innerHTML = '<div class="wrap">' + ({painel:vPainel,banco:vBanco,editor:vEditor,cadastros:vCadastros,modelos:vModelos,backup:vBackup,correcao:vCorrecao}[view])() + '</div>';
+  m.innerHTML = '<div class="wrap">' + ({painel:vPainel,banco:vBanco,editor:vEditor,cadastros:vCadastros,modelos:vModelos,backup:vBackup,correcao:vCorrecao,diario:vDiario}[view])() + '</div>';
   if(view==='editor') updPreview();
 }
 
@@ -2634,7 +2659,7 @@ const nuvem = {ativo:false, user:null, db:null, ultimo:{}, timer:null, estado:'o
 const COLECOES = ['dados','turmas','atividades','correcoes'];
 function nuvemDocs(){
   const docs = {};
-  docs['dados/config'] = {escola:S.escola, diretrizes:S.diretrizes, termo:S.termo, cabecalhos:S.cabecalhos, criteriosProva:S.criteriosProva, modelos:S.modelos, disciplinas:S.disciplinas, conteudos:S.conteudos, seq:S.seq};
+  docs['dados/config'] = {escola:S.escola, diretrizes:S.diretrizes, termo:S.termo, cabecalhos:S.cabecalhos, criteriosProva:S.criteriosProva, modelos:S.modelos, disciplinas:S.disciplinas, conteudos:S.conteudos, seq:S.seq, diario:S.diario||null};
   S.turmas.forEach(t=>docs['turmas/'+t.id]=t);
   S.atividades.forEach(a=>docs['atividades/'+a.id]=a);
   Object.entries(S.correcoes||{}).forEach(([k,v])=>docs['correcoes/'+k]=v);
@@ -2646,7 +2671,7 @@ function nuvemStatus(estado, erro=''){
   const el = document.getElementById('nuvemBox'); if(el) el.innerHTML = nuvemBoxHTML();
 }
 function nuvemBoxHTML(){
-  if(!nuvem.ativo) return 'Protótipo v0.15 · dados salvos neste navegador';
+  if(!nuvem.ativo) return 'Protótipo v0.16 · dados salvos neste navegador';
   if(!nuvem.user) return `<button class="btn sm pri" data-act="nuvem-entrar">Entrar com Google</button><span>Entre para salvar na nuvem e usar em qualquer computador.</span>`;
   const st = {ok:`Salvo na nuvem às ${nuvem.quando}`, pendente:'Salvando…', carregando:'Carregando da nuvem…', erro:`Erro ao salvar: ${esc(nuvem.erro)}`}[nuvem.estado] || '';
   return `<span class="nv ${nuvem.estado}">${st}</span><span>${esc(nuvem.user.email||'')}</span><button class="btn sm ghost" data-act="nuvem-sair">Sair</button>`;
@@ -2731,6 +2756,196 @@ async function nuvemEntrar(){
   }
 }
 async function nuvemSair(){ clearTimeout(nuvem.timer); if(nuvem.estado==='pendente') await nuvemEnviar(); try{ sessionStorage.removeItem('criaedu_local'); }catch(e){} await firebase.auth().signOut(); }
+
+/* ============================================================
+   Diário de Classe do Aluno (registro diário da aprendizagem)
+   Um diário de 2 páginas (frente e verso) por aula do período.
+   A data da aula e o 2º professor ficam em branco para preencher à mão.
+   ============================================================ */
+const DIAS_SEMANA = [['1','Seg'],['2','Ter'],['3','Qua'],['4','Qui'],['5','Sex'],['6','Sáb']];
+function diarioPadrao(){
+  return {turmaId:'', disciplinaId:'', de:hoje(), ate:'', qtd:4, dias:[], alunoIds:[], rodape:''};
+}
+function cfgDiario(){
+  S.diario = Object.assign(diarioPadrao(), S.diario||{});
+  const d = S.diario;
+  if(!turma(d.turmaId)) d.turmaId = S.turmas[0]?.id || '';
+  if(!disc(d.disciplinaId)) d.disciplinaId = S.disciplinas[0]?.id || '';
+  const t = turma(d.turmaId); d.alunoIds = (d.alunoIds||[]).filter(id=>t?.alunos.some(a=>a.id===id));
+  return d;
+}
+const alunosDiario = d => (turma(d.turmaId)?.alunos||[]).filter(a=>d.alunoIds.includes(a.id)).sort((x,y)=>x.numero-y.numero);
+const qtdDiario = d => Math.max(1, Math.min(60, Math.round(num(d.qtd)||1)));
+function rodapeDiario(d){
+  const ano = (d.de||hoje()).slice(0,4);
+  return d.rodape || `Projeto Diário de Classe do Aluno – Aprendizagem Inclusiva | CEDUP Hermann Hering | Ano Letivo ${ano} | Prof. ${S.escola.professor||''}`;
+}
+function contarAulas(d){
+  if(!d.de || !d.ate || !d.dias.length) return 0;
+  let n=0; const fim = new Date(d.ate+'T12:00:00');
+  for(let x=new Date(d.de+'T12:00:00'); x<=fim; x.setDate(x.getDate()+1)) if(d.dias.includes(String(x.getDay()))) n++;
+  return n;
+}
+/* devolve as 2 páginas (frente e verso) de um diário */
+function diarioPaginas(d, al, k, n){
+  const t = turma(d.turmaId), di = disc(d.disciplinaId), ano = (d.de||hoje()).slice(0,4);
+  const periodo = d.de && d.ate ? `${dataBR(d.de)} a ${dataBR(d.ate)}` : (d.de ? `a partir de ${dataBR(d.de)}` : '');
+  const dataBranco = `&nbsp; &nbsp; &nbsp; / &nbsp; &nbsp; &nbsp; / ${ano}`;
+  const cel = (r,v,span=1) => `<td colspan="${span}"><span class="l">${r}</span><span class="v">${v||'&nbsp;'}</span></td>`;
+  const lin = q => Array.from({length:q},()=>'<div class="dg-ln"></div>').join('');
+  const perg = (nn,t,inst,q) => `<div class="dg-q"><p class="dg-qt"><b>${nn}. ${t}</b>${inst?' '+inst:''}</p>${lin(q)}</div>`;
+  const op = xs => xs.map(x=>`<p class="dg-op"><span class="dg-bx"></span>${x}</p>`).join('');
+  const faixa = `<img class="faixa" src="${S.escola.faixa||FAIXA_PADRAO}" width="604" alt="">`;
+  const p1 = `${faixa}<h1 class="dg-h1">DIÁRIO DE CLASSE DO ALUNO</h1><p class="dg-st">Registro diário da aprendizagem</p>
+    <p class="dg-nt">Após o visto dos professores, cole este diário no seu caderno.</p>
+    <div class="dg-obj"><b>Objetivo:</b> registrar, ao final de cada aula, as principais aprendizagens, dificuldades e reflexões sobre o conteúdo desenvolvido. Após o preenchimento, entregue o registro ao professor do Atendimento Educacional Especializado (AEE) para análise e visto pedagógico; em seguida, ele será encaminhado ao professor regente da disciplina para acompanhamento do processo de aprendizagem.</div>
+    <table class="dg-g"><colgroup><col style="width:46%"><col style="width:22%"><col style="width:32%"></colgroup>
+      <tr>${cel('Aluno(a)', al?esc(al.nome):'')}${cel('Matrícula', al?esc(al.matricula):'')}${cel('Turma', t?esc(t.nome):'')}</tr>
+      <tr>${cel('Disciplina', esc((di?.nome||'').toUpperCase()))}${cel('Professor(a) regente', esc((S.escola.professor||'').toUpperCase()),2)}</tr>
+      <tr>${cel('Data da aula', dataBranco)}${cel('Diário', `${k} de ${n}`)}${cel('Período', periodo)}</tr>
+      <tr>${cel('2º professor(a) (AEE)', '', 3)}</tr></table>
+    ${perg(1,'O QUE APRENDEMOS HOJE?','Escreva, com suas palavras, o principal assunto estudado.',5)}
+    ${perg(2,'O QUE EU CONSEGUI COMPREENDER?','Explique aquilo que você entendeu da aula.',4)}
+    ${perg(3,'O QUE AINDA TENHO DÚVIDA?','Escreva aquilo que ainda não ficou claro.',4)}`;
+  const p2 = `<table class="dg-id"><tr><td><b>Aluno(a):</b> ${al?esc(al.nome):''}</td><td class="r"><b>Data da aula:</b> ${dataBranco} · Diário ${k} de ${n}</td></tr></table>
+    ${perg(4,'O QUE MAIS CHAMOU MINHA ATENÇÃO?','Pode ser uma explicação, um exemplo, uma atividade ou algo importante.',4)}
+    <table class="dg-op2"><tr>
+      <td><p class="dg-qt"><b>5. COMO FOI MINHA PARTICIPAÇÃO NA AULA?</b></p>${op(['Participei bastante','Participei quando solicitado','Preciso participar mais','Tive dificuldades durante a aula'])}</td>
+      <td><p class="dg-qt"><b>6. COMO ESTOU SAINDO DA AULA?</b></p>${op(['Entendi muito bem','Entendi a maior parte','Entendi um pouco','Preciso de ajuda'])}</td></tr>
+      <tr><td><p class="dg-qt"><b>7. PARA A PRÓXIMA AULA, VOU:</b></p>${op(['Revisar o conteúdo','Fazer exercícios','Perguntar minhas dúvidas','Ler o material'])}</td>
+      <td><p class="dg-qt"><b>8. MINHA DEDICAÇÃO HOJE</b> (marque de 1 a 10)</p><table class="dg-esc"><tr>${Array.from({length:10},(_,i)=>`<td>${i+1}</td>`).join('')}</tr><tr>${Array.from({length:10},()=>'<td>&nbsp;</td>').join('')}</tr></table></td></tr></table>
+    ${perg(9,'OBSERVAÇÕES DO 2º PROFESSOR (AEE)','',5)}
+    <table class="dg-vist"><tr><td>Visto do 2º professor (AEE)</td><td class="sp"></td><td>Visto do professor regente</td></tr></table>`;
+  return [`<div class="doc"><div class="dg">${p1}</div></div>`, `<div class="doc"><div class="dg">${p2}</div></div>`];
+}
+/* páginas de um aluno (todos os diários do período), com o texto do rodapé de cada página */
+function diarioDoAluno(d, al){
+  const n = qtdDiario(d), pags = [];
+  for(let k=1;k<=n;k++){ const [a,b] = diarioPaginas(d, al, k, n); pags.push({html:a, dir:`Diário ${k} de ${n} · página 1 de 2`}, {html:b, dir:`Diário ${k} de ${n} · página 2 de 2`}); }
+  return pags;
+}
+function estiloPaginasDiario(pags, esq){
+  const F = "Arial, 'Liberation Sans', Helvetica, sans-serif", e = s => String(s).replace(/["\\]/g,'');
+  return pags.map((p,i)=>`@page dg${i}{size:A4;margin:3cm 2cm 2cm 3cm;`+
+    `@top-right{content:"${e(p.dir)}";font-family:${F};font-size:9pt;vertical-align:bottom;padding-bottom:8mm}`+
+    `@bottom-left{content:"${e(esq)}";font-family:${F};font-size:7pt;vertical-align:bottom;padding-bottom:8mm;width:160mm;white-space:nowrap}}#printArea .dg${i}{page:dg${i}}`).join('\n');
+}
+const nomeArqDiario = (d, al) => `Diario_${semAcento(disc(d.disciplinaId)?.nome||'disciplina').replace(/[^\w]+/g,'_')}_${al?semAcento(al.nome).replace(/[^\w]+/g,'_'):'em_branco'}`;
+function validarDiario(d){
+  if(!d.de || !d.ate){ toast('Informe o período: data inicial e data final.'); return false; }
+  if(d.ate < d.de){ toast('A data final do período é anterior à data inicial.'); return false; }
+  return true;
+}
+let modoArqDiario = 'separado';
+async function exportarDiario(formato){
+  const d = cfgDiario(); if(!validarDiario(d)) return;
+  const lista = alunosDiario(d), alvos = lista.length ? lista : [null];
+  const esq = rodapeDiario(d);
+  if(formato==='pdf' && (alvos.length===1 || modoArqDiario==='unico')){
+    const pags = alvos.flatMap(al=>diarioDoAluno(d, al));
+    let st = document.getElementById('pgStyle'); if(!st){ st=document.createElement('style'); st.id='pgStyle'; document.head.appendChild(st); }
+    st.textContent = estiloPaginasDiario(pags, esq);
+    document.getElementById('printArea').innerHTML = pags.map((p,i)=>`<div class="dg${i}">${p.html}</div>`).join('');
+    document.title = alvos.length===1 ? nomeArqDiario(d, alvos[0]) : 'Diarios_de_Classe';
+    setTimeout(()=>{ window.print(); document.title='CriaEdu'; },50);
+    toast('Na janela de impressão, escolha "Salvar como PDF" e ative a impressão frente e verso.'); return;
+  }
+  if(formato==='word'){
+    const docWord = pags => htmlWordDiario(pags.map(p=>p.html).join(QUEBRA), esq);
+    if(alvos.length===1 || modoArqDiario==='unico'){
+      baixar((alvos.length===1?nomeArqDiario(d,alvos[0]):'Diarios_de_Classe')+'.doc', montarMHTML(docWord(alvos.flatMap(al=>diarioDoAluno(d,al)))), 'application/msword');
+      toast('Arquivo Word gerado.'); return;
+    }
+    try{
+      await carregarScript(LIB_ZIP); const zip = new JSZip();
+      alvos.forEach(al=> zip.file(nomeArqDiario(d,al)+'.doc', montarMHTML(docWord(diarioDoAluno(d,al)))));
+      baixarBlob(`Diarios_de_Classe_${alvos.length}_alunos.zip`, await zip.generateAsync({type:'blob'}));
+      toast(`${alvos.length} arquivos Word gerados, um por aluno (.zip).`);
+    }catch(e){ toast(e.message); }
+    return;
+  }
+  // PDF, um arquivo por aluno (.zip)
+  try{
+    await carregarScript(LIB_ZIP); await carregarScript(LIB_H2P);
+    const zip = new JSZip();
+    for(let k=0;k<alvos.length;k++){
+      const al = alvos[k], pags = diarioDoAluno(d, al); toast(`Gerando PDF ${k+1} de ${alvos.length}…`);
+      const blob = await html2pdf().set({margin:[30,30,20,20], image:{type:'jpeg',quality:0.95}, html2canvas:{scale:2, backgroundColor:'#ffffff', scrollX:0, scrollY:0}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['css','legacy'], avoid:['.dg-q','tr','.dg-op']}})
+        .from(paginaPDF(pags.map(p=>p.html).join('<div class="html2pdf__page-break"></div>'))).toPdf().get('pdf').then(pdf=>{
+          const tot = pdf.internal.getNumberOfPages();
+          for(let pg=1; pg<=tot; pg++){ pdf.setPage(pg); pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5);
+            pdf.text(esq, 30, 297-12); if(pags[pg-1]){ pdf.setFontSize(9); pdf.text(pags[pg-1].dir, 210-20, 20, {align:'right'}); } }
+        }).outputPdf('blob');
+      zip.file(nomeArqDiario(d,al)+'.pdf', blob);
+    }
+    baixarBlob(`Diarios_de_Classe_${alvos.length}_alunos.zip`, await zip.generateAsync({type:'blob'}));
+    toast(`${alvos.length} PDFs gerados, um por aluno (.zip).`);
+  }catch(e){ toast(e.message||'Não foi possível gerar os PDFs.'); }
+}
+function htmlWordDiario(corpo, esq){
+  const pagina = `@page Section1{size:21cm 29.7cm;margin:3cm 2cm 2cm 3cm;mso-footer-margin:1cm;mso-footer:f1;}`;
+  const hf = `<table id="hrdftrtbl" style="margin-left:50in" border="0" cellspacing="0" cellpadding="0"><tr><td>`+
+    `<div style="mso-element:footer" id="f1"><p class="MsoFooter" style="font-family:Arial;font-size:7.5pt">${esc(esq)} &nbsp; · &nbsp; Página <span style="mso-field-code: PAGE ">1</span></p></div></td></tr></table>`;
+  return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Diário de Classe</title>
+<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
+<style>${pagina}div.Section1{page:Section1}${docCss(true)}</style></head><body><div class="Section1">${corpo}${hf}</div></body></html>`;
+}
+
+/* ---------- tela ---------- */
+function vDiario(){
+  const d = cfgDiario(), t = turma(d.turmaId), lista = alunosDiario(d), n = qtdDiario(d), calc = contarAulas(d);
+  const opt = (arr, v) => arr.map(([k,nm])=>`<option value="${k}"${v===k?' selected':''}>${esc(nm)}</option>`).join('');
+  const ex = diarioPaginas(d, lista[0]||null, 1, n);
+  return `<div class="head"><div><h1>Diário de Classe do Aluno</h1><p class="lead">Registro diário da aprendizagem para os alunos que precisam de acompanhamento. Cada aula do período gera um diário de 2 páginas (frente e verso). A data da aula e o nome do 2º professor ficam em branco para preenchimento à mão.</p></div></div>
+  <div class="editor">
+    <div class="formcol">
+      <section class="panel"><h3>Emissão</h3>
+        <div class="fields">
+          <label class="f">Turma<select id="dg-turma" data-dg="turmaId">${opt(S.turmas.map(x=>[x.id,x.nome]), d.turmaId)}</select></label>
+          <label class="f">Disciplina<select id="dg-disc" data-dg="disciplinaId">${opt(S.disciplinas.map(x=>[x.id,x.nome]), d.disciplinaId)}</select></label>
+          <label class="f">Período: de<input type="date" id="dg-de" data-dg="de" value="${esc(d.de)}"></label>
+          <label class="f">até<input type="date" id="dg-ate" data-dg="ate" value="${esc(d.ate)}"></label>
+          <label class="f">Quantidade de aulas (diários por aluno)<input type="number" id="dg-qtd" min="1" max="60" data-dg="qtd" value="${n}"></label>
+        </div>
+        <details class="box"${d.dias.length?' open':''}><summary>Calcular a quantidade pelos dias da semana com aula</summary>
+          <div class="row" style="margin-top:8px">${DIAS_SEMANA.map(([k,nm])=>`<label class="ck"><input type="checkbox" id="dg-d${k}" data-dgdia="${k}" ${d.dias.includes(k)?'checked':''}> ${nm}</label>`).join('')}
+          <button class="btn sm" data-act="dg-calc">Usar ${calc} ${calc===1?'aula':'aulas'}</button></div>
+          <p class="note">Conta os dias marcados dentro do período. Retire feriados e dias sem aula ajustando a quantidade. As datas não são impressas.</p></details>
+        <label class="f">Texto do rodapé<input type="text" id="dg-rod" data-dg="rodape" value="${esc(d.rodape)}" placeholder="${esc(rodapeDiario(Object.assign({},d,{rodape:''})))}"></label>
+      </section>
+      <section class="panel"><div class="qhead"><h3>Alunos</h3><span class="badge ${lista.length?'ok':'warn'}">${lista.length} de ${t?t.alunos.length:0} selecionados</span></div>
+        ${!t ? '<p class="note">Cadastre uma turma em Cadastros.</p>' : `<div class="row"><button class="btn sm" data-act="dg-todos">Todos</button><button class="btn sm" data-act="dg-nenhum">Nenhum</button></div>
+        <div class="alunos">${[...t.alunos].sort((x,y)=>x.numero-y.numero).map(x=>`<label class="al"><input type="checkbox" id="dga-${x.id}" data-dgal="${x.id}" ${d.alunoIds.includes(x.id)?'checked':''}><span class="num">${x.numero}</span><span class="nm">${esc(x.nome)}</span><span class="mat">${esc(x.matricula)}</span></label>`).join('')}</div>`}
+        <p class="note">${lista.length ? `Serão gerados <b>${lista.length*n} diários</b> (${n} por aluno), <b>${lista.length*n*2} páginas</b> no total.` : 'Sem alunos marcados, sai um diário com nome e matrícula em branco.'}</p>
+      </section>
+    </div>
+    <div class="prevcol">
+      <div class="prevbar">
+        ${lista.length>1?`<div class="seg" role="group" aria-label="Arquivos"><button data-act="dg-modo" data-v="separado" aria-pressed="${modoArqDiario==='separado'}">Um arquivo por aluno</button><button data-act="dg-modo" data-v="unico" aria-pressed="${modoArqDiario==='unico'}">Arquivo único</button></div>`:'<span class="note">Prévia do diário 1</span>'}
+        <div class="row"><button class="btn sm" data-act="dg-word">Word</button><button class="btn sm pri" data-act="dg-pdf">PDF</button></div>
+      </div>
+      <div class="sheetwrap">${ex.map(x=>`<div class="sheet" style="margin-bottom:12px">${x}</div>`).join('')}</div>
+      <p class="note">Imprima em frente e verso: cada diário ocupa uma folha. No PDF, ative "Frente e verso" na janela de impressão.</p>
+    </div>
+  </div>`;
+}
+document.addEventListener('click', e=>{
+  const b = e.target.closest('[data-act^="dg-"]'); if(!b || view!=='diario') return;
+  const d = cfgDiario(), t = turma(d.turmaId), act = b.dataset.act;
+  if(act==='dg-todos'){ d.alunoIds = (t?.alunos||[]).map(x=>x.id); save(); rerenderEditor(); }
+  if(act==='dg-nenhum'){ d.alunoIds = []; save(); rerenderEditor(); }
+  if(act==='dg-calc'){ const c = contarAulas(d); if(!c){ toast('Informe o período e marque os dias da semana com aula.'); return; } d.qtd = c; save(); rerenderEditor(); toast(`Quantidade ajustada para ${c} aulas.`); }
+  if(act==='dg-modo'){ modoArqDiario = b.dataset.v; rerenderEditor(); }
+  if(act==='dg-pdf') exportarDiario('pdf');
+  if(act==='dg-word') exportarDiario('word');
+});
+document.addEventListener('change', e=>{
+  if(view!=='diario') return;
+  const t = e.target, ds = t.dataset, d = cfgDiario();
+  if(ds.dg){ d[ds.dg] = ds.dg==='qtd' ? Math.max(1,Math.min(60,Math.round(num(t.value)||1))) : t.value; if(ds.dg==='turmaId') d.alunoIds=[]; save(); setTimeout(rerenderEditor); }
+  else if(ds.dgdia){ d.dias = t.checked ? [...new Set([...d.dias, ds.dgdia])].sort() : d.dias.filter(x=>x!==ds.dgdia); save(); rerenderEditor(); }
+  else if(ds.dgal){ d.alunoIds = t.checked ? [...new Set([...d.alunoIds, ds.dgal])] : d.alunoIds.filter(x=>x!==ds.dgal); save(); rerenderEditor(); }
+});
 
 /* ---------- início ---------- */
 { const salvo = load(); S = salvo ? migrar(salvo) : seed(); save(); }
