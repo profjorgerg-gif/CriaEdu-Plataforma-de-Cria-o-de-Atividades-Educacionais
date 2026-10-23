@@ -2,8 +2,9 @@
 
 Protótipo para criar, organizar e adaptar atividades: exercícios, provas, trabalhos, estudos de caso, Recuperação Paralela (RP), Regime de Atendimento Domiciliar (RAD) e atividades adaptadas para alunos PCD.
 
-## O que já funciona (v0.13)
+## O que já funciona (v0.15)
 
+- **Novo modelo de documento (aprovado em 23/10/2026)**: cabeçalho em grade com rótulos acima dos dados, quadro de nota ao lado de Aluno e Assinatura, Observações no padrão "Título – texto", título sem linha repetida, questão com faixa "QUESTÃO n · pontos", parágrafos com recuo de 1,25 cm, dados no formato "item: valor" em tabela automática, código da atividade no rodapé de cada página e numeração no canto superior direito. Moldura opcional (Cabeçalho › Blocos › Moldura na página).
 - **Documentos no padrão ABNT (NBR 14724)**: uma única fonte (Arial ou Times New Roman, escolhida em Modelos e diretrizes), texto em 12 pt com espaçamento 1,5 e justificado, cabeçalho, tabelas e notas em 10–11 pt, margens de 3 cm (superior e esquerda) e 2 cm (inferior e direita), páginas numeradas no canto superior direito.
 - **Impressão e PDF corrigidos**: quebras de página respeitadas (folhas de cálculo sempre em página própria), sem páginas em branco no final e sem linhas cortadas no PDF por aluno.
 - **Assinatura do aluno** no cabeçalho (campo que pode ser marcado ou desmarcado).
@@ -99,6 +100,7 @@ Cada atualização é entregue em um .zip com data e hora no nome (ex.: `criaedu
 
 | Versão | Data | Principais mudanças |
 | --- | --- | --- |
+| v0.15 | 23/10/2026 | Novo modelo de documento aprovado (cabeçalho em grade, tabela de dados, rodapé com código, moldura opcional) |
 | v0.14 | 23/10/2026 | Folha de cálculo com a página em branco (sem pauta e sem "Resposta final") |
 | v0.13 | 23/10/2026 | Padrão ABNT nos documentos; correção da impressão e do PDF |
 | v0.12 | 23/10/2026 | Assinatura do aluno no cabeçalho |

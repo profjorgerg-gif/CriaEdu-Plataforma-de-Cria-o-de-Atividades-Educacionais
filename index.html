@@ -268,7 +268,7 @@ details.box summary{cursor:pointer;font-weight:600;font-size:13px}
   <aside class="side">
     <div class="brand"><b>Cria<span>Edu</span></b><small>Criação, adaptação e banco de atividades</small></div>
     <nav class="nav" id="nav"></nav>
-    <div class="foot" id="nuvemBox">Protótipo v0.13 · dados salvos neste navegador</div>
+    <div class="foot" id="nuvemBox">Protótipo v0.15 · dados salvos neste navegador</div>
   </aside>
   <main id="main"></main>
 </div>
@@ -324,7 +324,7 @@ const CAMPOS_CAB = [
   ['Identificação', [['faixa','Faixa com brasão e logotipo'],['titulo','Caixa de título da avaliação'],['tituloAtividade','Título e dados da atividade']]],
   ['Dados do aluno e da turma', [['aluno','Aluno'],['numero','Nº de chamada'],['matricula','Matrícula'],['assinatura','Assinatura do aluno'],['disciplina','Disciplina'],['professor','Professor(a)'],['curso','Curso'],['turma','Turma'],['data','Data'],['prazo','Prazo de entrega'],['codigo','Código da atividade']]],
   ['Preenchimento', [['turmaAuto','Turma preenchida'],['dataAuto','Data preenchida'],['anoNaData','Ano já impresso na data em branco']]],
-  ['Blocos', [['nota','Quadro de nota'],['criterios','Critérios para a prova'],['termo','Termo de desistência']]]
+  ['Blocos', [['moldura','Moldura na página'],['nota','Quadro de nota'],['criterios','Critérios para a prova'],['termo','Termo de desistência']]]
 ];
 const ROTULOS = ['PROVA','RECUPERAÇÃO PARALELA','2ª CHAMADA PROVA','2ª CHAMADA REF','TRABALHO','ESTUDO DE CASO','LISTA DE EXERCÍCIOS','ATIVIDADE','ATIVIDADE DOMICILIAR','ATIVIDADE ADAPTADA'];
 const AVALIACOES = ['PR1','PR2','PR3','TR1','TR2','REF PR1','REF PR2'];
@@ -1006,48 +1006,55 @@ function cabecalhoHTML(a, aluno){
 /* Modelo da escola (CEDUP): faixa, caixa de título, dados, quadro de nota, critérios e termo */
 function cabCedup(a, aluno){
   const c=a.cab, k=c.campos, E=S.escola, d=disc(a.disciplinaId), t=turma(a.turmaId);
-  const L = (r,v) => `<b>${r}:</b> ${v}`;
-  const linha = n => '_'.repeat(n);
   const ano = (a.data||hoje()).slice(0,4);
+  const cel = (rot, val, span, cls='') => `<td colspan="${span}"${cls?` class="${cls}"`:''}><span class="l">${rot}</span><span class="v">${val||'&nbsp;'}</span></td>`;
   let h = '<div class="cdp">';
-  if(k.faixa) h += `<img class="faixa" src="${E.faixa||FAIXA_PADRAO}" width="640" alt="">`;
+  if(k.faixa) h += `<img class="faixa" src="${E.faixa||FAIXA_PADRAO}" width="604" alt="">`;
   if(k.titulo && tituloCab(a)) h += `<table class="cdp-tit" align="center"><tr><td>${esc(tituloCab(a))}</td></tr></table>`;
-  // linha do aluno
+
+  // parte de cima (aluno, matrícula, assinatura) com o quadro de nota à direita
+  const topo = [];
   if(k.aluno || k.matricula){
-    let p = '';
-    if(k.aluno){
-      const nome = aluno ? `${k.numero&&aluno.numero?aluno.numero+' – ':''}${esc(aluno.nome)}` : linha(k.matricula?52:78);
-      p += L('ALUNO', nome);
-      if(k.numero && !aluno) p += ` &nbsp;${L('Nº', linha(5))}`;
-    }
-    if(k.matricula) p += `${k.aluno?' &nbsp;&nbsp; ':''}${L('MATRÍCULA', aluno?esc(aluno.matricula):linha(14))}`;
-    h += `<p class="cdp-al">${p}</p>`;
+    const nome = aluno ? `${k.numero&&aluno.numero?aluno.numero+' – ':''}${esc(aluno.nome)}` : '';
+    let r = '';
+    if(k.aluno) r += cel(k.numero&&!aluno?'Aluno(a) · Nº':'Aluno(a)', nome, k.matricula?3:4);
+    if(k.matricula) r += cel('Matrícula', aluno?esc(aluno.matricula):'', k.aluno?1:4);
+    topo.push(r);
   }
-  if(k.assinatura){
-    h += `<p class="cdp-al cdp-ass"><b>ASSINATURA DO ALUNO:</b> ${linha(62)}</p>`;
-  }
-  // bloco de dados + quadro de nota
-  const ln = [];
-  const l1 = [k.disciplina?L('DISCIPLINA',esc((d?.nome||'').toUpperCase())):'', k.professor?L('PROFESSOR(A)',esc((E.professor||'').toUpperCase())):''].filter(Boolean).join(' &nbsp; ');
-  if(l1) ln.push(l1);
-  if(k.curso) ln.push(L('CURSO', esc(cursoDe(a).toUpperCase()) || linha(30)));
-  const dataTxt = k.dataAuto && a.data ? dataBR(a.data) : `______ / ______ / ${k.anoNaData?ano:'______'}`;
-  const l3 = [k.data?L('DATA',dataTxt):'', k.turma?L('TURMA', k.turmaAuto&&t?esc(t.nome):linha(10)):''].filter(Boolean).join(' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ');
-  if(l3) ln.push(l3);
-  const l4 = [k.prazo?L('PRAZO DE ENTREGA', a.prazoEntrega?dataBR(a.prazoEntrega):`______ / ______ / ${ano}`):'', k.codigo?L('CÓDIGO', `<span class="cdp-cod">${esc(codigoAluno(a,aluno))}</span>`):''].filter(Boolean).join(' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ');
-  if(l4) ln.push(l4);
+  if(k.assinatura) topo.push(cel('Assinatura do aluno', '', 4, 'ass'));
+  // parte de baixo: linhas na largura toda
+  const dataTxt = k.dataAuto && a.data ? dataBR(a.data) : (k.anoNaData ? `&nbsp; &nbsp; / &nbsp; &nbsp; / ${ano}` : '');
+  const prazoTxt = a.prazoEntrega ? dataBR(a.prazoEntrega) : (a.prazo ? esc(a.prazo) : '');
+  const grupos = [
+    [k.disciplina&&['Disciplina', esc((d?.nome||'').toUpperCase()), 2], k.professor&&['Professor(a)', esc((E.professor||'').toUpperCase()), 3]],
+    [k.curso&&['Curso', esc(cursoDe(a).toUpperCase()), 2], k.turma&&['Turma', k.turmaAuto&&t?esc(t.nome):'', 3]],
+    [k.data&&['Data', dataTxt, 1], k.prazo&&['Prazo de entrega', prazoTxt, 1], k.codigo&&['Código', `<b>${esc(codigoAluno(a,aluno))}</b>`, 3]]
+  ].map(g=>g.filter(Boolean)).filter(g=>g.length);
+  const baixo = grupos.map(g=>{
+    const soma = g.reduce((x,y)=>x+y[2],0);
+    return g.map((x,i)=>cel(x[0], x[1], i===g.length-1 ? x[2]+(5-soma) : x[2])).join('');
+  });
   const crits = k.criterios ? criteriosDoCab(a) : [];
   const itemDestaque = crits.findIndex(x=>x.destaque);
-  const nota = esc(c.notaTexto||'NOTA').replace('{item}', itemDestaque>=0?itemDestaque+1:'').replace(/\n/g,'<br>');
-  if(ln.length || k.nota){
-    h += `<table class="cdp-dados"><tr><td class="cdp-l">${ln.map(x=>`<p>${x}</p>`).join('')}</td>${k.nota?`<td class="cdp-nota-c"><table class="cdp-nota"><tr><td>${nota}</td></tr></table></td>`:''}</tr></table>`;
+  const notaTxt = esc(c.notaTexto||'NOTA').replace('{item}', itemDestaque>=0?itemDestaque+1:'').replace(/\n/g,'<br>');
+  const notaCel = span => `<td class="nota" rowspan="${span}"><span class="l${(c.notaTexto||'').length>14?' nl':''}">${notaTxt}</span></td>`;
+  if(topo.length || baixo.length || k.nota){
+    h += '<table class="cab-g"><colgroup><col style="width:16%"><col style="width:23%"><col style="width:22%"><col style="width:22%"><col style="width:17%"></colgroup>';
+    if(topo.length) topo.forEach((r,i)=> h += `<tr>${r}${i===0&&k.nota?notaCel(topo.length):''}${!k.nota&&i===0?'':''}</tr>`.replace('colspan="4"', k.nota?'colspan="4"':'colspan="5"'));
+    else if(k.nota) h += `<tr><td colspan="4" class="ass"><span class="l">&nbsp;</span><span class="v"></span></td>${notaCel(1)}</tr>`;
+    baixo.forEach(r=> h += `<tr>${r}</tr>`);
+    h += '</table>';
   }
-  // critérios e termo
+  // observações / critérios e termo
   if(crits.length || k.termo){
     let n = 0;
-    h += `<table class="cdp-crit"><tr><td class="n"></td><td><b class="cdp-ct">${esc(c.critTitulo||'Critérios para a Prova:')}</b></td></tr>`;
-    crits.forEach(x=>{ n++; h += `<tr><td class="n">${n}</td><td>${x.destaque?`<b><i>${rich(x.texto)}</i></b>`:`${x.titulo?`<b>${esc(x.titulo)}</b> – `:''}${rich(x.texto)}`}</td></tr>`; });
-    if(k.termo){ n++; h += `<tr><td class="n">${n}</td><td class="cdp-termo"><b>${esc(S.termo.titulo)}</b><br><i>${esc(S.termo.texto)}</i><br>NOME COMPLETO:${linha(44)} ASSINATURA:${linha(22)}</td></tr>`; }
+    h += `<table class="cdp-crit"><tr><th colspan="2">${esc((c.critTitulo||'Critérios para a prova').replace(/:\s*$/,''))}</th></tr>`;
+    crits.forEach(x=>{ n++;
+      let tit = x.titulo, txt = x.texto;
+      const m = !tit && String(txt).match(/^\s*([^:–\n]{3,60}):\s*(.+)$/s);   // "Título: texto" vira título em negrito
+      if(m){ tit = m[1]; txt = m[2].charAt(0).toUpperCase()+m[2].slice(1); }
+      h += `<tr><td class="n">${n}</td><td>${tit?`<b>${esc(tit)}</b> – `:''}${rich(txt)}</td></tr>`; });
+    if(k.termo){ n++; h += `<tr><td class="n">${n}</td><td class="cdp-termo"><b>${esc(S.termo.titulo)}</b><br>${esc(S.termo.texto)}<br><br>Nome completo: ____________________________________ &nbsp; Assinatura: ______________________</td></tr>`; }
     h += '</table>';
   }
   return h + '</div>';
@@ -1113,12 +1120,37 @@ function respostaCurta(q){
 }
 
 /* cada parágrafo em um bloco próprio: evita cortar linhas na quebra de página do PDF */
-const linhasHTML = t => String(t).split('\n').map(l=>`<div class="lin">${rich(l)||'&nbsp;'}</div>`).join('');
+const RE_DADO = /^\s*([^:]{1,40}?)\s*:\s*(\S.*)$/;
+/* parágrafos com recuo (ABNT); linhas "item: valor" em sequência (3 ou mais) viram tabela de dados */
+function linhasHTML(t){
+  const ls = String(t).replace(/\r/g,'').split('\n'), out = [];
+  for(let i=0;i<ls.length;){
+    let j=i; while(j<ls.length && RE_DADO.test(ls[j]) && !/https?:\/\//.test(ls[j])) j++;
+    if(j-i>=3){
+      let cap = '';
+      const prev = out.length ? out[out.length-1] : null;
+      if(prev && prev.curta){ cap = prev.txt; out.pop(); }
+      const pares = ls.slice(i,j).map(l=>l.match(RE_DADO));
+      let rows='';
+      for(let k=0;k<pares.length;k+=2){
+        const a=pares[k], b=pares[k+1];
+        rows += `<tr><td class="k">${rich(a[1])}</td><td class="vv">${rich(a[2])}</td>${b?`<td class="k">${rich(b[1])}</td><td class="vv">${rich(b[2])}</td>`:'<td class="k"></td><td class="vv"></td>'}</tr>`;
+      }
+      out.push({html:`<table class="dados">${cap?`<caption>${rich(cap)}</caption>`:''}${rows}</table>`});
+      i=j; continue;
+    }
+    const l = ls[i]; i++;
+    if(!l.trim()){ continue; }
+    const curta = l.trim().length<=60 && !/[.!?]$/.test(l.trim());
+    out.push({html:`<div class="lin${curta?' curta':''}">${rich(l)}</div>`, curta, txt:l});
+  }
+  return out.map(x=>x.html).join('');
+}
 
 function questaoHTML(q,i,prof,perfil){
   const pts = `(${fmt(q.pontos)} ${num(q.pontos)===1?'ponto':'pontos'})`;
-  let h = `<div class="qq"><div class="qh"><span class="qn">Questão ${i+1}</span> <span class="pts">${pts}</span>${perfil?' &nbsp;☐':''}</div>`;
-  if(q.contexto) h += `<div class="ctx">${q.tipo==='caso'?'<div class="lin"><b>Situação prática</b></div>':''}${linhasHTML(q.contexto)}</div>`;
+  let h = `<div class="qq"><table class="qh"><tr><td class="qn">${perfil?'☐ ':''}QUESTÃO ${i+1}</td><td class="pts">${fmt(q.pontos)} ${num(q.pontos)===1?'ponto':'pontos'}</td></tr></table>`;
+  if(q.contexto) h += `<div class="ctx">${q.tipo==='caso'?'<div class="lin curta"><b>Situação prática</b></div>':''}${linhasHTML(q.contexto)}</div>`;
   if(q.enunciado) h += `<div class="enun">${linhasHTML(q.enunciado)}</div>`;
   if(q.tipo==='multipla'){
     h += '<ul class="alts">' + q.alternativas.map((t,j)=>{
@@ -1154,8 +1186,10 @@ function docHTML(a, ver, aluno){
   h += cabecalhoHTML(a, prof ? null : aluno);
   if(a.cab.campos.tituloAtividade || prof){
     h += `<h1 class="tit">${esc(a.titulo||'Atividade sem título')}</h1>`;
-    const sub = [TIPOS[a.tipo]?.nome, MODALIDADES[a.modalidade]?.nome, c?.titulo, a.duracao?('Duração: '+a.duracao):''].filter(Boolean).map(esc).join(' · ');
-    h += `<p class="sub">${sub}</p>`;
+    if(prof){
+      const sub = [TIPOS[a.tipo]?.nome, MODALIDADES[a.modalidade]?.nome, c?.titulo, a.duracao?('Duração: '+a.duracao):''].filter(Boolean).map(esc).join(' · ');
+      h += `<p class="sub">${sub}</p>`;
+    }
   }
   if(a.tipo==='rp' && a.referencia) h += `<p class="sub">Referente a: ${esc(a.referencia)}</p>`;
   const ori = (a.orientacoes||'').split('\n').filter(x=>x.trim());
@@ -1200,7 +1234,7 @@ function folhasCalculo(a, aluno, qs){
     const nf = q.tipo==='calculo' ? Math.max(0, Math.round(num(q.folhas))) : 0;
     for(let k=1;k<=nf;k++){
       h += QUEBRA + cabecalhoHTML(sem, aluno);
-      h += `<div class="fc"><div class="fc-tit">FOLHA DE CÁLCULO</div><div class="fc-sub">Questão ${i+1}${nf>1?` · folha ${k} de ${nf}`:''}</div>`;
+      h += `<div class="fc"><div class="fc-tit">FOLHA DE CÁLCULO – QUESTÃO ${i+1}${nf>1?` (${k}/${nf})`:''}</div>`;
       h += '</div>';   // o restante da página fica em branco para os cálculos
     }
   });
@@ -1254,62 +1288,65 @@ const fonteDoc = () => (FONTES_DOC[S && S.escola && S.escola.fonte] || FONTES_DO
 const REGRAS_DOC = `
 p{margin:0}
 table{border-collapse:collapse;width:100%}
-.cdp{font-size:11pt;line-height:1.3;margin:0 0 12pt;text-align:left}
-.faixa{display:block;width:100%;height:auto;margin:0 0 4pt}
-.cdp-tit{width:62%;margin:2pt auto 10pt;border-collapse:collapse}
-.cdp-tit td{border:1px solid #000;text-align:center;font-weight:bold;font-size:12pt;padding:4pt 8pt}
-.cdp-al{margin:0 0 6pt;white-space:nowrap;overflow:hidden}
-.cdp-ass{margin:0 0 8pt}
-.cdp-dados{width:100%;border-collapse:collapse}
-.cdp-dados td{vertical-align:top;padding:0}
-.cdp-l p{margin:0 0 6pt}
-.cdp-nota-c{width:30mm;padding-left:6pt}
-.cdp-nota{width:28mm;border-collapse:collapse}
-.cdp-nota td{border:1px solid #000;height:22mm;vertical-align:top;text-align:center;font-weight:bold;font-size:9pt;line-height:1.2;padding:3pt}
-.cdp-cod{font-weight:bold;letter-spacing:.02em}
-.cdp-crit{width:100%;border-collapse:collapse;margin:4pt 0 0;font-size:10pt;line-height:1.25}
-.cdp-crit td{border:1px solid #000;padding:2pt 5pt;vertical-align:middle;text-align:justify}
-.cdp-crit td.n{width:16pt;text-align:center}
-.cdp-ct{font-size:10pt}
-.cdp-termo{font-size:9pt;line-height:1.4}
-.cab td{border:1px solid #000;padding:3pt 6pt;font-size:10pt;line-height:1.3;vertical-align:middle;text-align:left}
+.cdp{font-size:10pt;line-height:1.25;margin:0 0 6mm;text-align:left}
+.faixa{display:block;width:100%;height:auto}
+.cdp-tit{width:60%;margin:3mm auto 4mm;border-collapse:collapse}
+.cdp-tit td{border:1pt solid #000;text-align:center;font-weight:bold;font-size:12pt;line-height:1.3;padding:2mm}
+.cab-g{width:100%;border-collapse:collapse;table-layout:fixed}
+.cab-g td{border:.75pt solid #000;padding:1.1mm 2mm;vertical-align:top;font-size:10pt;line-height:1.25;text-align:left}
+.cab-g .l{display:block;font-size:7.5pt;font-weight:bold;text-transform:uppercase;letter-spacing:.03em;margin-bottom:.6mm}
+.cab-g .v{display:block;min-height:4.6mm}
+.cab-g .ass .v{min-height:7mm}
+.cab-g .nota{text-align:center}
+.cab-g .nota .l{text-align:center}
+.cab-g .nota .nl{text-transform:none;font-size:8pt;line-height:1.2}
+.cdp-crit{width:100%;border-collapse:collapse;margin:3mm 0 0;font-size:9.5pt;line-height:1.3}
+.cdp-crit th{border:.75pt solid #000;padding:1.2mm 2mm;text-align:left;font-size:9.5pt;text-transform:uppercase}
+.cdp-crit td{border:.75pt solid #000;padding:1.2mm 2mm;vertical-align:top;text-align:justify}
+.cdp-crit td.n{width:6mm;text-align:center}
+.cdp-termo{font-size:9pt}
+.cab td{border:.75pt solid #000;padding:1.1mm 2mm;font-size:10pt;line-height:1.3;vertical-align:middle;text-align:left}
 .esc{text-align:center}
 .esc b{font-size:12pt;display:block}
 .logo{width:70px;text-align:center}
 .cod{text-align:center;white-space:nowrap}
-.lbl{font-size:8pt;text-transform:uppercase;color:#444}
-h1.tit{font-size:12pt;font-weight:bold;text-align:center;text-transform:uppercase;margin:12pt 0 0;line-height:1.5}
-.sub{text-align:center;font-size:10pt;line-height:1.3;color:#333;margin:0 0 12pt}
-.ori{border:1px solid #000;padding:4pt 8pt;margin:0 0 12pt;font-size:10pt;line-height:1.3;text-align:left}
+.lbl{font-size:7.5pt;font-weight:bold;text-transform:uppercase}
+h1.tit{font-size:12pt;font-weight:bold;text-align:center;text-transform:uppercase;margin:0 0 5mm;line-height:1.3}
+.sub{text-align:center;font-size:10pt;line-height:1.3;margin:-3mm 0 5mm}
+.ori{border:.75pt solid #000;padding:1.5mm 3mm;margin:0 0 5mm;font-size:10pt;line-height:1.3;text-align:left}
 .ori b{font-size:10pt;text-transform:uppercase}
-.ori ul{margin:2pt 0 0;padding-left:16pt}
-.qq{margin:0 0 12pt}
-.qh{margin:0 0 2pt}
-.qn{font-weight:bold}
-.pts{font-size:10pt;color:#333}
-.ctx{border-left:2pt solid #000;padding:2pt 0 2pt 8pt;margin:4pt 0;white-space:pre-wrap;text-align:justify}
-.enun{white-space:pre-wrap;margin:2pt 0}
-.alts{margin:2pt 0 0;padding:0;list-style:none}
+.ori ul{margin:1mm 0 0;padding-left:5mm}
+.qq{margin:0 0 6mm}
+.qh{width:100%;border-collapse:collapse;border-bottom:1pt solid #000;margin:0 0 2mm}
+.qh td{padding:0 0 1mm;vertical-align:bottom;line-height:1.3}
+.qn{font-weight:bold;font-size:12pt;text-align:left}
+.pts{font-size:10pt;text-align:right;white-space:nowrap}
+.ctx{margin:0 0 2mm}
+.enun{margin:0 0 2mm}
+.lin{text-align:justify;text-indent:1.25cm}
+.lin.curta{text-indent:0;text-align:left}
+.dados{width:100%;border-collapse:collapse;margin:2mm 0 3mm;font-size:10.5pt;line-height:1.3;table-layout:fixed}
+.dados caption{caption-side:top;text-align:left;font-weight:bold;font-size:10pt;text-transform:uppercase;padding:0 0 1mm}
+.dados td{border:.75pt solid #000;padding:1.1mm 2mm;text-align:left}
+.dados td.k{font-weight:bold;background:#f2f2f2;width:22%}
+.dados td.vv{width:28%}
+.alts{margin:1mm 0 0;padding:0;list-style:none}
 .alts li{margin:0}
-.afs{margin-bottom:4pt}
-.linha{border-bottom:1px solid #777;height:24pt;margin:0}
-.calc{border:1px solid #777;height:120pt;margin-top:4pt}
-.calcref{border:1px dashed #555;padding:3pt 8pt;margin-top:4pt;font-size:10pt;line-height:1.3;text-align:left}
-.fc-tit{text-align:center;font-weight:bold;font-size:12pt;letter-spacing:.06em;border:1px solid #000;padding:4pt;margin:0}
-.fc-sub{text-align:center;font-size:10pt;line-height:1.3;margin:2pt 0 6pt}
-.fc-area{border:1px solid #000;padding:0 8pt}
-.fc-l{border-bottom:1px solid #bbb;height:24pt;margin:0}
-.fc-res{font-size:11pt;font-weight:bold;margin-top:8pt;text-align:left}
-.gab{border:1px solid #2e7548;background:#eef6f0;padding:3pt 8pt;margin-top:4pt;font-size:10pt;line-height:1.3;white-space:pre-wrap;text-align:left}
+.afs{margin-bottom:2mm}
+.linha{border-bottom:.75pt solid #777;height:24pt;margin:0}
+.calc{border:.75pt solid #777;height:120pt;margin-top:2mm}
+.calcref{border:.75pt dashed #000;padding:1.5mm 3mm;margin-top:3mm;font-size:10pt;line-height:1.3;text-align:left}
+.fc-tit{border:1pt solid #000;text-align:center;font-weight:bold;font-size:12pt;line-height:1.3;padding:2mm;letter-spacing:.04em;margin:0}
+.gab{border:.75pt solid #2e7548;background:#eef6f0;padding:1.5mm 3mm;margin-top:2mm;font-size:10pt;line-height:1.3;white-space:pre-wrap;text-align:left}
 .gab b{color:#2e7548}
 .ok{font-weight:bold;color:#2e7548}
-.tb td,.tb th{border:1px solid #000;padding:3pt 6pt;font-size:10pt;line-height:1.3;text-align:left}
+.tb td,.tb th{border:.75pt solid #000;padding:1.1mm 2mm;font-size:10pt;line-height:1.3;text-align:left}
 .tb th{background:#eee}
 .tb .num{text-align:right}
-.gi td,.gi th{font-size:8pt;padding:2pt 3pt}
-h2.sec{font-size:12pt;font-weight:bold;text-transform:uppercase;margin:16pt 0 6pt;border-bottom:1px solid #000;padding-bottom:2pt}
-.profmark{text-align:center;font-size:10pt;font-weight:bold;color:#ad3535;margin-bottom:6pt}
-.adapt .qq{border:1px solid #999;padding:6pt 8pt}
+.gi td,.gi th{font-size:8pt;padding:.6mm 1mm}
+h2.sec{font-size:12pt;font-weight:bold;text-transform:uppercase;margin:6mm 0 2mm;border-bottom:1pt solid #000;padding-bottom:1mm}
+.profmark{text-align:center;font-size:10pt;font-weight:bold;color:#ad3535;margin-bottom:2mm}
+.adapt .qq{border:.75pt solid #999;padding:2mm 3mm}
 `;
 /* para a tela/impressão, prefixa cada seletor com .doc; o Word recebe as regras sem prefixo */
 function docCss(paraWord){
@@ -1321,7 +1358,7 @@ function docCss(paraWord){
     const sels = sel.split(',').map(x=>x.trim());
     return (paraWord ? sels : sels.map(x=> x.startsWith('.adapt') ? '.doc'+x : '.doc '+x)).join(',') + '{' + dec + '}';
   }).join('\n');
-  return raiz + '\n' + regras + (paraWord ? '' : '\n.doc .qh,.doc .alts,.doc .fc,.doc .cdp,.doc tr{break-inside:avoid}\n.doc .qh{break-after:avoid}');
+  return raiz + '\n' + regras + (paraWord ? '' : '\n.doc .qh,.doc .alts li,.doc .cdp,.doc tr,.doc .lin.curta,.doc .dados{break-inside:avoid}\n.doc .qh,.doc .lin.curta{break-after:avoid}');
 }
 function aplicarEstiloDoc(){
   let el = document.getElementById('docStyle');
@@ -1366,34 +1403,73 @@ function carregarScript(url){
 }
 const semAcento = t => String(t).normalize('NFD').replace(/[̀-ͯ]/g,'');
 const nomeArquivoAluno = (a, al) => `${codigoAluno(a,al)}_${semAcento(al.nome).replace(/[^\w]+/g,'_').replace(/^_|_$/g,'')}`;
-function htmlWord(a, corpo){
+function htmlWord(a, corpo, codigo){
+  const mold = !!a.cab.campos.moldura;
+  const pagina = `@page Section1{size:21cm 29.7cm;margin:3cm 2cm 2cm 3cm;mso-header-margin:1.5cm;mso-footer-margin:1cm;mso-header:h1;mso-footer:f1;${mold?'border:solid windowtext 1.0pt;padding:24.0pt 24.0pt 24.0pt 24.0pt;mso-page-border-surround-header:no;mso-page-border-surround-footer:no;':''}}`;
+  const hf = `<table id="hrdftrtbl" style="margin-left:50in" border="0" cellspacing="0" cellpadding="0"><tr><td>`+
+    `<div style="mso-element:header" id="h1"><p class="MsoHeader" align="right" style="text-align:right;font-family:Arial;font-size:10pt"><span style="mso-field-code: PAGE ">1</span></p></div>`+
+    `<div style="mso-element:footer" id="f1"><p class="MsoFooter" style="font-family:Arial;font-size:9pt">${esc(codigo||a.codigo)}</p></div>`+
+    `</td></tr></table>`;
   return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${esc(a.titulo)}</title>
 <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
-<style>@page Section1{size:21cm 29.7cm;margin:3cm 2cm 2cm 3cm}div.Section1{page:Section1}${docCss(true)}</style></head><body><div class="Section1">${corpo}</div></body></html>`;
+<style>${pagina}div.Section1{page:Section1}${docCss(true)}</style></head><body><div class="Section1">${corpo}${hf}</div></body></html>`;
 }
 function baixarBlob(nome, blob){ const url=URL.createObjectURL(blob); const l=document.createElement('a'); l.href=url; l.download=nome; document.body.appendChild(l); l.click(); l.remove(); setTimeout(()=>URL.revokeObjectURL(url),4000); }
 /* Quem recebe arquivo próprio: 1 aluno = 1 arquivo; vários alunos + "um por aluno" = um arquivo de cada (em .zip) */
 function planoExport(a, ver){
   const dest = alunosDe(a);
   if(ver==='prof') return {tipo:'unico', corpo:()=>docHTML(a,'prof'), nome:nomeArquivo(a,'prof')};
-  if(dest.length===1) return {tipo:'unico', corpo:()=>docHTML(a,'aluno',dest[0]), nome:nomeArquivoAluno(a,dest[0])};
+  if(dest.length===1) return {tipo:'unico', um:dest[0], corpo:()=>docHTML(a,'aluno',dest[0]), nome:nomeArquivoAluno(a,dest[0])};
   if(dest.length>1 && modoArquivo==='separado') return {tipo:'separado', dest};
   return {tipo:'unico', corpo:()=>docCopias(a,'aluno'), nome:nomeArquivo(a,'aluno')};
 }
 async function exportarWord(a,ver){
   const pl = planoExport(a,ver);
-  if(pl.tipo==='unico'){ baixar(pl.nome+'.doc', montarMHTML(htmlWord(a, pl.corpo())), 'application/msword'); toast('Arquivo Word gerado.'); return; }
+  if(pl.tipo==='unico'){ baixar(pl.nome+'.doc', montarMHTML(htmlWord(a, pl.corpo(), pl.um?codigoAluno(a,pl.um):a.codigo)), 'application/msword'); toast('Arquivo Word gerado.'); return; }
   try{
     await carregarScript(LIB_ZIP); const zip = new JSZip();
-    pl.dest.forEach(al=> zip.file(nomeArquivoAluno(a,al)+'.doc', montarMHTML(htmlWord(a, docHTML(a,'aluno',al)))));
+    pl.dest.forEach(al=> zip.file(nomeArquivoAluno(a,al)+'.doc', montarMHTML(htmlWord(a, docHTML(a,'aluno',al), codigoAluno(a,al)))));
     baixarBlob(`${a.codigo}_word_${pl.dest.length}_alunos.zip`, await zip.generateAsync({type:'blob'}));
     toast(`${pl.dest.length} arquivos Word gerados, um por aluno (.zip).`);
   }catch(e){ toast(e.message); }
 }
+/* páginas nomeadas: cada aluno tem o próprio código no rodapé; moldura opcional */
+function estiloPaginas(itens){
+  const F = "Arial, 'Liberation Sans', Helvetica, sans-serif";
+  return itens.map((x,i)=>{
+    const m = x.moldura;
+    return `@page pg${i}{size:A4;${m?'margin:1cm;border:1.2pt solid #000;padding:2cm 1cm 1cm 2cm;':'margin:3cm 2cm 2cm 3cm;'}`+
+      `@top-right{content:counter(page);font-family:${F};font-size:10pt;vertical-align:bottom;padding-bottom:${m?'2mm':'8mm'}}`+
+      `@bottom-left{content:"${String(x.codigo).replace(/"/g,'')}";font-family:${F};font-size:9pt;vertical-align:${m?'top':'bottom'};${m?'padding-top:2mm':'padding-bottom:8mm'}}}`+
+      `#printArea .pg${i}{page:pg${i}}`;
+  }).join('\n');
+}
+/* PDF por aluno: o gerador fatia a página como imagem; cada palavra dos parágrafos longos vira um bloco
+   que não pode ser cortado, então a quebra cai entre linhas e o parágrafo continua na página seguinte */
+function paginaPDF(html){
+  const box = document.createElement('div'); box.className = 'pdfpage'; box.innerHTML = html;
+  box.querySelectorAll('.lin:not(.curta)').forEach(el=>{
+    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), nos = [];
+    while(w.nextNode()) nos.push(w.currentNode);
+    nos.forEach(t=>{
+      const f = document.createDocumentFragment();
+      t.textContent.split(/(\s+)/).forEach(p=>{ if(!p) return; if(/^\s+$/.test(p)) f.appendChild(document.createTextNode(p)); else { const sp=document.createElement('span'); sp.className='w'; sp.textContent=p; f.appendChild(sp); } });
+      t.parentNode.replaceChild(f, t);
+    });
+    el.classList.add('pdf-quebra');
+  });
+  return box;
+}
 async function exportarPDF(a,ver){
   const pl = planoExport(a,ver);
   if(pl.tipo==='unico'){
-    document.getElementById('printArea').innerHTML = pl.corpo();
+    const dest = alunosDe(a), lista = ver==='aluno' && dest.length && !pl.um ? dest : [pl.um||null];
+    const mold = !!a.cab.campos.moldura;
+    const itens = ver==='prof' ? [{codigo:a.codigo, moldura:mold, html:docHTML(a,'prof')}]
+      : lista.map(al=>({codigo:codigoAluno(a,al), moldura:mold, html:docHTML(a,'aluno',al||undefined)}));
+    let st = document.getElementById('pgStyle'); if(!st){ st=document.createElement('style'); st.id='pgStyle'; document.head.appendChild(st); }
+    st.textContent = estiloPaginas(itens);
+    document.getElementById('printArea').innerHTML = itens.map((x,i)=>`<div class="pg${i}">${x.html}</div>`).join('');
     document.title = pl.nome;
     setTimeout(()=>{ window.print(); document.title='CriaEdu'; },50);
     toast('Na janela de impressão, escolha "Salvar como PDF".'); return;
@@ -1403,10 +1479,14 @@ async function exportarPDF(a,ver){
     const zip = new JSZip();
     for(let k=0;k<pl.dest.length;k++){
       const al = pl.dest[k]; toast(`Gerando PDF ${k+1} de ${pl.dest.length}…`);
-      const blob = await html2pdf().set({margin:[30,30,20,20], image:{type:'jpeg',quality:0.95}, html2canvas:{scale:2, backgroundColor:'#ffffff', scrollX:0, scrollY:0}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['css','legacy'], avoid:['.qh','.lin','.alts li','.cdp','.cdp-crit tr','tr','.fc','.calcref','.gab']}})
-        .from(`<div class="pdfpage">${docHTML(a,'aluno',al)}</div>`,'string').toPdf().get('pdf').then(pdf=>{
+      const blob = await html2pdf().set({margin:[30,30,20,20], image:{type:'jpeg',quality:0.95}, html2canvas:{scale:2, backgroundColor:'#ffffff', scrollX:0, scrollY:0}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['css','legacy'], avoid:['.qh','.lin.curta','.w','.alts li','.cdp','.cdp-crit tr','tr','.fc','.calcref','.gab']}})
+        .from(paginaPDF(docHTML(a,'aluno',al))).toPdf().get('pdf').then(pdf=>{
           const n = pdf.internal.getNumberOfPages();
-          for(let pg=1; pg<=n; pg++){ pdf.setPage(pg); pdf.setFont('helvetica','normal'); pdf.setFontSize(10); pdf.text(String(pg), 210-20, 20, {align:'right'}); }
+          for(let pg=1; pg<=n; pg++){
+            pdf.setPage(pg); pdf.setFont('helvetica','normal'); pdf.setFontSize(10); pdf.text(String(pg), 210-20, 20, {align:'right'});
+            pdf.setFontSize(9); pdf.text(codigoAluno(a,al), 30, 297-12);
+            if(a.cab.campos.moldura){ pdf.setLineWidth(0.4); pdf.rect(10, 10, 190, 277); }
+          }
         }).outputPdf('blob');
       zip.file(nomeArquivoAluno(a,al)+'.pdf', blob);
     }
@@ -1627,7 +1707,7 @@ function cabOpcoes(o, alvo){
     h += `<details class="box"><summary>+ Criar um critério novo</summary><div class="fields" style="margin-top:8px">
         <label class="f wide">Título (sai em negrito)<input type="text" id="${pid}-nc-t" placeholder="Ex.: Uso de régua e calculadora"></label>
         <label class="f wide">Texto do critério<textarea id="${pid}-nc-x" rows="2" placeholder="Ex.: É permitido o uso de régua e calculadora simples. Use **texto** para negrito."></textarea></label></div>
-        <div class="row" style="margin-top:8px"><label class="ck"><input type="checkbox" id="${pid}-nc-d"> Parágrafo destacado (negrito e itálico, sem título)</label>
+        <div class="row" style="margin-top:8px"><label class="ck"><input type="checkbox" id="${pid}-nc-d"> Parágrafo sem título</label>
         <button class="btn sm pri" data-act="crit-novo" data-dest="${alvo}" data-pid="${pid}">Adicionar e marcar</button></div>
         <p class="note">O critério entra no banco de critérios e fica disponível para todos os modelos e atividades.${alvo==='act'?' Nesta atividade ele já sai marcado; use "Gravar no modelo" para levá-lo ao modelo.':''}</p></details>`;
   }
@@ -2566,7 +2646,7 @@ function nuvemStatus(estado, erro=''){
   const el = document.getElementById('nuvemBox'); if(el) el.innerHTML = nuvemBoxHTML();
 }
 function nuvemBoxHTML(){
-  if(!nuvem.ativo) return 'Protótipo v0.13 · dados salvos neste navegador';
+  if(!nuvem.ativo) return 'Protótipo v0.15 · dados salvos neste navegador';
   if(!nuvem.user) return `<button class="btn sm pri" data-act="nuvem-entrar">Entrar com Google</button><span>Entre para salvar na nuvem e usar em qualquer computador.</span>`;
   const st = {ok:`Salvo na nuvem às ${nuvem.quando}`, pendente:'Salvando…', carregando:'Carregando da nuvem…', erro:`Erro ao salvar: ${esc(nuvem.erro)}`}[nuvem.estado] || '';
   return `<span class="nv ${nuvem.estado}">${st}</span><span>${esc(nuvem.user.email||'')}</span><button class="btn sm ghost" data-act="nuvem-sair">Sair</button>`;
