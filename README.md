@@ -2,8 +2,9 @@
 
 Protótipo para criar, organizar e adaptar atividades: exercícios, provas, trabalhos, estudos de caso, Recuperação Paralela (RP), Regime de Atendimento Domiciliar (RAD) e atividades adaptadas para alunos PCD.
 
-## O que já funciona (v0.18)
+## O que já funciona (v0.19)
 
+- **Padrão vestibular nos documentos**: texto da questão em 10 pt com espaçamento simples, cabeçalho e observações em 6,5–9 pt, títulos em 10,5–11 pt. É o padrão para todas as atividades; o modelo ABNT (12 pt, espaçamento 1,5) continua disponível em Modelos e diretrizes › Tamanho do texto.
 - **Diário de Classe no banco de atividades**: cada emissão pode ser salva com código próprio (DIA-AAAA-NNNN), turma, disciplina, alunos, período e aulas por semana. No banco, filtre por "Diário de Classe" para abrir e reimprimir ou reutilizar em outro período ou turma.
 - **Diário de Classe – quantidade automática**: a partir do período, das aulas por semana e, opcionalmente, dos dias da semana com aula, a plataforma calcula quantos diários imprimir (cada aula, um diário), descontando feriados e conselhos informados.
 - **Diário de Classe do Aluno** (aba própria): registro diário da aprendizagem para os alunos que precisam de acompanhamento. O professor escolhe turma, alunos, disciplina, período (de/até) e a quantidade de aulas (com cálculo opcional pelos dias da semana). Cada aula gera um diário de 2 páginas (frente e verso), numerado ("Diário 3 de 8"), com a data da aula e o 2º professor em branco para preenchimento. Saída em PDF ou Word, um arquivo por aluno (.zip) ou arquivo único.
@@ -99,10 +100,11 @@ Protótipo para criar, organizar e adaptar atividades: exercícios, provas, trab
 
 ## Histórico de versões
 
-Cada atualização é entregue em um .zip com data e hora no nome (ex.: `criaedu_2026-10-23_08h40.zip`). No GitHub, envie o conteúdo do zip por **Add file › Upload files** e use a mensagem de commit `Atualização AAAA-MM-DD HHhMM: descrição`.
+Desde a v0.19, as atualizações são publicadas diretamente no repositório pelo Claude, com a mensagem de commit `Atualização AAAA-MM-DD HHhMM: descrição`. Cada versão também é guardada em um .zip com data e hora no nome (ex.: `criaedu_2026-11-06_13h00.zip`).
 
 | Versão | Data | Principais mudanças |
 | --- | --- | --- |
+| v0.19 | 06/11/2026 | Padrão vestibular (10 pt) nos documentos; ABNT como opção |
 | v0.18 | 23/10/2026 | Diário de Classe salvo no banco de atividades |
 | v0.17 | 23/10/2026 | Diário de Classe: cálculo automático da quantidade de diários |
 | v0.16 | 23/10/2026 | Diário de Classe do Aluno (frente e verso, por período) |
