@@ -2,8 +2,9 @@
 
 Protótipo para criar, organizar e adaptar atividades: exercícios, provas, trabalhos, estudos de caso, Recuperação Paralela (RP), Regime de Atendimento Domiciliar (RAD) e atividades adaptadas para alunos PCD.
 
-## O que já funciona (v0.20)
+## O que já funciona (v0.21)
 
+- **Margens e quebra de página**: margens laterais iguais de 1,5 cm (superior 3 cm, inferior 2 cm); critérios e termo de desistência em 7,5 pt; o título de cada questão fica sempre junto do primeiro parágrafo (se não couber no fim da página, os dois passam juntos para a página seguinte).
 - **Tabela de dados com campos em branco**: no formato "item: valor", o valor pode ficar vazio (ex.: `Salário-base: R$` ou `FALTAS:`); a tabela é montada do mesmo jeito, com espaço para o aluno preencher.
 - **Padrão vestibular nos documentos**: texto da questão em 10 pt com espaçamento simples, cabeçalho e observações em 6,5–9 pt, títulos em 10,5–11 pt. É o padrão para todas as atividades; o modelo ABNT (12 pt, espaçamento 1,5) continua disponível em Modelos e diretrizes › Tamanho do texto.
 - **Diário de Classe no banco de atividades**: cada emissão pode ser salva com código próprio (DIA-AAAA-NNNN), turma, disciplina, alunos, período e aulas por semana. No banco, filtre por "Diário de Classe" para abrir e reimprimir ou reutilizar em outro período ou turma.
@@ -106,6 +107,7 @@ Desde a v0.19, as atualizações são publicadas diretamente no repositório pel
 | Versão | Data | Principais mudanças |
 | --- | --- | --- |
 | v0.19 | 06/11/2026 | Padrão vestibular (10 pt) nos documentos; ABNT como opção |
+| v0.21 | 06/11/2026 | Margens laterais iguais (1,5 cm), critérios em fonte menor, questão sem quebra entre o título e o 1º parágrafo |
 | v0.20 | 06/11/2026 | Tabela de dados ("item: valor") também com valores em branco, para o aluno preencher |
 | v0.18 | 23/10/2026 | Diário de Classe salvo no banco de atividades |
 | v0.17 | 23/10/2026 | Diário de Classe: cálculo automático da quantidade de diários |

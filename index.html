@@ -237,7 +237,7 @@ details.box summary{cursor:pointer;font-weight:600;font-size:13px}
   html,body{background:#fff!important;margin:0!important;padding:0!important;height:auto!important}
   body > *:not(#printArea){display:none!important}
   #printArea{display:block!important}
-  @page{size:A4;margin:3cm 2cm 2cm 3cm;
+  @page{size:A4;margin:3cm 1.5cm 2cm 1.5cm;
     @top-right{content:counter(page);font-family:Arial,Helvetica,sans-serif;font-size:10pt;vertical-align:bottom;padding-bottom:6mm}}
 }
 
@@ -270,7 +270,7 @@ details.box summary{cursor:pointer;font-weight:600;font-size:13px}
   <aside class="side">
     <div class="brand"><b>Cria<span>Edu</span></b><small>Criação, adaptação e banco de atividades</small></div>
     <nav class="nav" id="nav"></nav>
-    <div class="foot" id="nuvemBox">Protótipo v0.20 · dados salvos neste navegador</div>
+    <div class="foot" id="nuvemBox">Protótipo v0.21 · dados salvos neste navegador</div>
   </aside>
   <main id="main"></main>
 </div>
@@ -1156,8 +1156,16 @@ function linhasHTML(t){
 function questaoHTML(q,i,prof,perfil){
   const pts = `(${fmt(q.pontos)} ${num(q.pontos)===1?'ponto':'pontos'})`;
   let h = `<div class="qq"><table class="qh"><tr><td class="qn">${perfil?'☐ ':''}QUESTÃO ${i+1}</td><td class="pts">${fmt(q.pontos)} ${num(q.pontos)===1?'ponto':'pontos'}</td></tr></table>`;
-  if(q.contexto) h += `<div class="ctx">${q.tipo==='caso'?'<div class="lin curta"><b>Situação prática</b></div>':''}${linhasHTML(q.contexto)}</div>`;
-  if(q.enunciado) h += `<div class="enun">${linhasHTML(q.enunciado)}</div>`;
+  const qhTab = h.slice('<div class="qq">'.length); h = '<div class="qq">';
+  const ini = inner => { // junta o título da questão ao 1º parágrafo, para não ficar sozinho no fim da página
+    const m = inner.search(/<div class="lin">/); let fim = m<0 ? -1 : inner.indexOf('</div>', m);
+    if(fim<0){ const t = inner.indexOf('</table>'); fim = t<0 ? -1 : t+8; } else fim += 6;
+    return fim<0 ? `<div class="qini">${qhTab}${inner}</div>` : `<div class="qini">${qhTab}${inner.slice(0,fim)}</div>${inner.slice(fim)}`;
+  };
+  let semIni = true;
+  if(q.contexto){ const c = (q.tipo==='caso'?'<div class="lin curta"><b>Situação prática</b></div>':'') + linhasHTML(q.contexto); h += `<div class="ctx">${ini(c)}</div>`; semIni=false; }
+  if(q.enunciado){ const e = linhasHTML(q.enunciado); h += `<div class="enun">${semIni?ini(e):e}</div>`; semIni=false; }
+  if(semIni) h += qhTab;
   if(q.tipo==='multipla'){
     h += '<ul class="alts">' + q.alternativas.map((t,j)=>{
       const certa = prof && j===q.correta;
@@ -1328,6 +1336,7 @@ h1.tit{font-size:12pt;font-weight:bold;text-align:center;text-transform:uppercas
 .qn{font-weight:bold;font-size:12pt;text-align:left}
 .pts{font-size:10pt;text-align:right;white-space:nowrap}
 .ctx{margin:0 0 2mm}
+.qini{break-inside:avoid;page-break-inside:avoid}
 .enun{margin:0 0 2mm}
 .lin{text-align:justify;text-indent:1.25cm}
 .lin.curta{text-indent:0;text-align:left}
@@ -1390,9 +1399,10 @@ const REGRAS_VESTIBULAR = `
 .cab-g .l{font-size:6.5pt}
 .cab-g .v{min-height:4mm}
 .cab-g .ass .v{min-height:6mm}
-.cdp-crit{font-size:8.5pt;line-height:1.25}
-.cdp-crit th{font-size:8.5pt}
-.cdp-termo{font-size:8pt}
+.cdp-crit{font-size:7.5pt;line-height:1.2}
+.cdp-crit th{font-size:8pt}
+.cdp-crit td{padding:.8mm 1.5mm}
+.cdp-termo{font-size:7.5pt}
 h1.tit{font-size:11pt;margin:0 0 4mm}
 .ori{font-size:9pt}
 .ori b{font-size:9pt}
@@ -1465,7 +1475,7 @@ const semAcento = t => String(t).normalize('NFD').replace(/[̀-ͯ]/g,'');
 const nomeArquivoAluno = (a, al) => `${codigoAluno(a,al)}_${semAcento(al.nome).replace(/[^\w]+/g,'_').replace(/^_|_$/g,'')}`;
 function htmlWord(a, corpo, codigo){
   const mold = !!a.cab.campos.moldura;
-  const pagina = `@page Section1{size:21cm 29.7cm;margin:3cm 2cm 2cm 3cm;mso-header-margin:1.5cm;mso-footer-margin:1cm;mso-header:h1;mso-footer:f1;${mold?'border:solid windowtext 1.0pt;padding:24.0pt 24.0pt 24.0pt 24.0pt;mso-page-border-surround-header:no;mso-page-border-surround-footer:no;':''}}`;
+  const pagina = `@page Section1{size:21cm 29.7cm;margin:3cm 1.5cm 2cm 1.5cm;mso-header-margin:1.5cm;mso-footer-margin:1cm;mso-header:h1;mso-footer:f1;${mold?'border:solid windowtext 1.0pt;padding:24.0pt 24.0pt 24.0pt 24.0pt;mso-page-border-surround-header:no;mso-page-border-surround-footer:no;':''}}`;
   const hf = `<table id="hrdftrtbl" style="margin-left:50in" border="0" cellspacing="0" cellpadding="0"><tr><td>`+
     `<div style="mso-element:header" id="h1"><p class="MsoHeader" align="right" style="text-align:right;font-family:Arial;font-size:10pt"><span style="mso-field-code: PAGE ">1</span></p></div>`+
     `<div style="mso-element:footer" id="f1"><p class="MsoFooter" style="font-family:Arial;font-size:9pt">${esc(codigo||a.codigo)}</p></div>`+
@@ -1498,7 +1508,7 @@ function estiloPaginas(itens){
   const F = "Arial, 'Liberation Sans', Helvetica, sans-serif";
   return itens.map((x,i)=>{
     const m = x.moldura;
-    return `@page pg${i}{size:A4;${m?'margin:1cm;border:1.2pt solid #000;padding:2cm 1cm 1cm 2cm;':'margin:3cm 2cm 2cm 3cm;'}`+
+    return `@page pg${i}{size:A4;${m?'margin:1cm;border:1.2pt solid #000;padding:2cm .5cm 1cm .5cm;':'margin:3cm 1.5cm 2cm 1.5cm;'}`+
       `@top-right{content:counter(page);font-family:${F};font-size:10pt;vertical-align:bottom;padding-bottom:${m?'2mm':'8mm'}}`+
       `@bottom-left{content:"${String(x.codigo).replace(/"/g,'')}";font-family:${F};font-size:9pt;vertical-align:${m?'top':'bottom'};${m?'padding-top:2mm':'padding-bottom:8mm'}}}`+
       `#printArea .pg${i}{page:pg${i}}`;
@@ -1509,6 +1519,7 @@ function estiloPaginas(itens){
 function paginaPDF(html){
   const box = document.createElement('div'); box.className = 'pdfpage'; box.innerHTML = html;
   box.querySelectorAll('.lin:not(.curta)').forEach(el=>{
+    if(el.closest('.qini')) return;
     const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), nos = [];
     while(w.nextNode()) nos.push(w.currentNode);
     nos.forEach(t=>{
@@ -1539,7 +1550,7 @@ async function exportarPDF(a,ver){
     const zip = new JSZip();
     for(let k=0;k<pl.dest.length;k++){
       const al = pl.dest[k]; toast(`Gerando PDF ${k+1} de ${pl.dest.length}…`);
-      const blob = await html2pdf().set({margin:[30,30,20,20], image:{type:'jpeg',quality:0.95}, html2canvas:{scale:2, backgroundColor:'#ffffff', scrollX:0, scrollY:0}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['css','legacy'], avoid:['.qh','.lin.curta','.w','.alts li','.cdp','.cdp-crit tr','tr','.fc','.calcref','.gab']}})
+      const blob = await html2pdf().set({margin:[30,15,20,15], image:{type:'jpeg',quality:0.95}, html2canvas:{scale:2, backgroundColor:'#ffffff', scrollX:0, scrollY:0}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['css','legacy'], avoid:['.qini','.qh','.lin.curta','.w','.alts li','.cdp','.cdp-crit tr','tr','.fc','.calcref','.gab']}})
         .from(paginaPDF(docHTML(a,'aluno',al))).toPdf().get('pdf').then(pdf=>{
           const n = pdf.internal.getNumberOfPages();
           for(let pg=1; pg<=n; pg++){
@@ -2715,7 +2726,7 @@ function nuvemStatus(estado, erro=''){
   const el = document.getElementById('nuvemBox'); if(el) el.innerHTML = nuvemBoxHTML();
 }
 function nuvemBoxHTML(){
-  if(!nuvem.ativo) return 'Protótipo v0.20 · dados salvos neste navegador';
+  if(!nuvem.ativo) return 'Protótipo v0.21 · dados salvos neste navegador';
   if(!nuvem.user) return `<button class="btn sm pri" data-act="nuvem-entrar">Entrar com Google</button><span>Entre para salvar na nuvem e usar em qualquer computador.</span>`;
   const st = {ok:`Salvo na nuvem às ${nuvem.quando}`, pendente:'Salvando…', carregando:'Carregando da nuvem…', erro:`Erro ao salvar: ${esc(nuvem.erro)}`}[nuvem.estado] || '';
   return `<span class="nv ${nuvem.estado}">${st}</span><span>${esc(nuvem.user.email||'')}</span><button class="btn sm ghost" data-act="nuvem-sair">Sair</button>`;
@@ -2883,7 +2894,7 @@ function diarioDoAluno(d, al){
 }
 function estiloPaginasDiario(pags, esq){
   const F = "Arial, 'Liberation Sans', Helvetica, sans-serif", e = s => String(s).replace(/["\\]/g,'');
-  return pags.map((p,i)=>`@page dg${i}{size:A4;margin:3cm 2cm 2cm 3cm;`+
+  return pags.map((p,i)=>`@page dg${i}{size:A4;margin:3cm 1.5cm 2cm 1.5cm;`+
     `@top-right{content:"${e(p.dir)}";font-family:${F};font-size:9pt;vertical-align:bottom;padding-bottom:8mm}`+
     `@bottom-left{content:"${e(esq)}";font-family:${F};font-size:7pt;vertical-align:bottom;padding-bottom:8mm;width:160mm;white-space:nowrap}}#printArea .dg${i}{page:dg${i}}`).join('\n');
 }
@@ -2947,7 +2958,7 @@ async function exportarDiario(formato){
     const zip = new JSZip();
     for(let k=0;k<alvos.length;k++){
       const al = alvos[k], pags = diarioDoAluno(d, al); toast(`Gerando PDF ${k+1} de ${alvos.length}…`);
-      const blob = await html2pdf().set({margin:[30,30,20,20], image:{type:'jpeg',quality:0.95}, html2canvas:{scale:2, backgroundColor:'#ffffff', scrollX:0, scrollY:0}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['css','legacy'], avoid:['.dg-q','tr','.dg-op']}})
+      const blob = await html2pdf().set({margin:[30,15,20,15], image:{type:'jpeg',quality:0.95}, html2canvas:{scale:2, backgroundColor:'#ffffff', scrollX:0, scrollY:0}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['css','legacy'], avoid:['.dg-q','tr','.dg-op']}})
         .from(paginaPDF(pags.map(p=>p.html).join('<div class="html2pdf__page-break"></div>'))).toPdf().get('pdf').then(pdf=>{
           const tot = pdf.internal.getNumberOfPages();
           for(let pg=1; pg<=tot; pg++){ pdf.setPage(pg); pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5);
@@ -2960,7 +2971,7 @@ async function exportarDiario(formato){
   }catch(e){ toast(e.message||'Não foi possível gerar os PDFs.'); }
 }
 function htmlWordDiario(corpo, esq){
-  const pagina = `@page Section1{size:21cm 29.7cm;margin:3cm 2cm 2cm 3cm;mso-footer-margin:1cm;mso-footer:f1;}`;
+  const pagina = `@page Section1{size:21cm 29.7cm;margin:3cm 1.5cm 2cm 1.5cm;mso-footer-margin:1cm;mso-footer:f1;}`;
   const hf = `<table id="hrdftrtbl" style="margin-left:50in" border="0" cellspacing="0" cellpadding="0"><tr><td>`+
     `<div style="mso-element:footer" id="f1"><p class="MsoFooter" style="font-family:Arial;font-size:7.5pt">${esc(esq)} &nbsp; · &nbsp; Página <span style="mso-field-code: PAGE ">1</span></p></div></td></tr></table>`;
   return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Diário de Classe</title>
