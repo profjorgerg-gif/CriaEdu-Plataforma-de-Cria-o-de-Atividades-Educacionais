@@ -4,6 +4,7 @@ Protótipo para criar, organizar e adaptar atividades: exercícios, provas, trab
 
 ## O que já funciona (v0.20)
 
+- **Tabela de dados com campos em branco**: no formato "item: valor", o valor pode ficar vazio (ex.: `Salário-base: R$` ou `FALTAS:`); a tabela é montada do mesmo jeito, com espaço para o aluno preencher.
 - **Padrão vestibular nos documentos**: texto da questão em 10 pt com espaçamento simples, cabeçalho e observações em 6,5–9 pt, títulos em 10,5–11 pt. É o padrão para todas as atividades; o modelo ABNT (12 pt, espaçamento 1,5) continua disponível em Modelos e diretrizes › Tamanho do texto.
 - **Diário de Classe no banco de atividades**: cada emissão pode ser salva com código próprio (DIA-AAAA-NNNN), turma, disciplina, alunos, período e aulas por semana. No banco, filtre por "Diário de Classe" para abrir e reimprimir ou reutilizar em outro período ou turma.
 - **Diário de Classe – quantidade automática**: a partir do período, das aulas por semana e, opcionalmente, dos dias da semana com aula, a plataforma calcula quantos diários imprimir (cada aula, um diário), descontando feriados e conselhos informados.
